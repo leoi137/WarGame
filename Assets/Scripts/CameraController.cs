@@ -7,13 +7,13 @@ public class CameraController : MonoBehaviour
 
     [Header("Movement")]
     public float panSpeed = 20f;
-    public float edgeScrollSpeed = 15f;
-    public float edgeScrollThreshold = 15f;
 
     [Header("Zoom")]
-    public float zoomSpeed = 10f;
-    public float minZoom = 10f;
+    public float zoomSpeed = 8f;
+    public float minZoom = 5f;   // Close enough to see unit details
     public float maxZoom = 60f;
+    public float minAngle = 25f; // More top-down when zoomed out
+    public float maxAngle = 55f; // Steeper when zoomed in
 
     [Header("Bounds")]
     public float mapMinX = -10f;
@@ -22,6 +22,8 @@ public class CameraController : MonoBehaviour
     public float mapMaxZ = 110f;
 
     float currentZoom = 30f;
+    float targetZoom = 30f;
+    float zoomVelocity;
 
     void Awake()
     {
@@ -30,8 +32,8 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        transform.rotation = Quaternion.Euler(50f, 0f, 0f);
-        UpdateZoom();
+        targetZoom = currentZoom;
+        UpdateCameraFromZoom();
     }
 
     void Update()
@@ -45,7 +47,6 @@ public class CameraController : MonoBehaviour
     {
         Vector3 moveDir = Vector3.zero;
 
-        // Keyboard input (new Input System)
         if (Keyboard.current != null)
         {
             if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed)
@@ -58,13 +59,11 @@ public class CameraController : MonoBehaviour
                 moveDir += Vector3.right;
         }
 
-        // Edge scrolling disabled -- was causing unwanted camera movement
-        // when mouse is near edges of the Game window in the editor.
-        // Can be re-enabled for fullscreen builds later.
-
         if (moveDir != Vector3.zero)
         {
-            Vector3 move = moveDir.normalized * panSpeed * Time.deltaTime;
+            // Pan speed scales with zoom level (faster when zoomed out, slower when close)
+            float speedMult = Mathf.Lerp(0.4f, 1.5f, (currentZoom - minZoom) / (maxZoom - minZoom));
+            Vector3 move = moveDir.normalized * panSpeed * speedMult * Time.deltaTime;
             transform.position += new Vector3(move.x, 0, move.z);
         }
     }
@@ -74,16 +73,27 @@ public class CameraController : MonoBehaviour
         if (Mouse.current == null) return;
 
         float scroll = Mouse.current.scroll.ReadValue().y;
-        if (scroll != 0)
+        if (Mathf.Abs(scroll) > 0.01f)
         {
-            currentZoom -= scroll * zoomSpeed * Time.deltaTime * 2f;
-            currentZoom = Mathf.Clamp(currentZoom, minZoom, maxZoom);
-            UpdateZoom();
+            // Scroll is an instant value, not a held key -- don't multiply by deltaTime
+            float zoomDelta = -Mathf.Sign(scroll) * zoomSpeed;
+            targetZoom = Mathf.Clamp(targetZoom + zoomDelta, minZoom, maxZoom);
         }
+
+        // Smooth zoom interpolation
+        currentZoom = Mathf.SmoothDamp(currentZoom, targetZoom, ref zoomVelocity, 0.12f);
+        UpdateCameraFromZoom();
     }
 
-    void UpdateZoom()
+    void UpdateCameraFromZoom()
     {
+        // Camera angle changes with zoom: more top-down when far, steeper when close
+        float zoomT = (currentZoom - minZoom) / (maxZoom - minZoom);
+        float angle = Mathf.Lerp(maxAngle, minAngle, zoomT);
+
+        transform.rotation = Quaternion.Euler(angle, 0f, 0f);
+
+        // Position: Y is the zoom height
         Vector3 pos = transform.position;
         pos.y = currentZoom;
         transform.position = pos;

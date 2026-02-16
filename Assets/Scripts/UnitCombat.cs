@@ -135,6 +135,13 @@ public class UnitCombat : MonoBehaviour
 
     void Attack(Unit target)
     {
+        // Trigger attack animation
+        UnitAnimator animator = GetComponent<UnitAnimator>();
+        if (animator != null)
+        {
+            animator.PlayAttackAnimation();
+        }
+
         switch (unit.unitType)
         {
             case UnitType.Archer:

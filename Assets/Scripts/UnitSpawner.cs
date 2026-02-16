@@ -132,6 +132,18 @@ public class UnitSpawner : MonoBehaviour
         unitObj.AddComponent<UnitCombat>();
         unitObj.AddComponent<HealthBar>();
 
+        // Animator: wire up body part references
+        UnitAnimator anim = unitObj.AddComponent<UnitAnimator>();
+        anim.head = unit.partHead;
+        anim.body = unit.partBody;
+        anim.leftArm = unit.partLeftArm;
+        anim.rightArm = unit.partRightArm;
+        anim.leftLeg = unit.partLeftLeg;
+        anim.rightLeg = unit.partRightLeg;
+        anim.weapon = unit.partWeapon;
+        anim.weaponLeft = unit.partWeaponLeft;
+        anim.InitializeRests();
+
         // Register
         if (FactionManager.Instance != null)
         {
