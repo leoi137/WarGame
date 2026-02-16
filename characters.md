@@ -1,192 +1,274 @@
-# WorldWars - Characters & Units
+# World Wars - Viking Characters
 
-This document describes all unit types in WorldWars, their stats, abilities, and tactical roles. Use this as a reference when balancing or adding new units.
-
----
-
-## Factions
-
-### Kingdom of the North (Player)
-- **Color**: Blue (#3366CC)
-- **Helmet accent**: Dark blue
-- **Spawn side**: Left side of map
-- **Controlled by**: Player (mouse input)
-
-### Southern Empire (AI)
-- **Color**: Red (#CC3333)
-- **Helmet accent**: Dark red
-- **Spawn side**: Right side of map
-- **Controlled by**: AI opponent
+A detailed breakdown of all unit types in the Viking warband system, including stats, abilities, visual identity, combat behavior, and tactical roles.
 
 ---
 
-## Unit Types
+## Unit Roster
 
-### Swordsman
-
-> *Heavy melee fighter. The backbone of any army. Slow but durable, they absorb damage and deal punishment up close.*
-
-| Stat | Value |
-|------|-------|
-| **HP** | 100 |
-| **Attack Damage** | 15 |
-| **Attack Range** | 2.5 units |
-| **Attack Cooldown** | 1.0 seconds |
-| **Move Speed** | 3.5 units/sec |
-| **DPS** | 15.0 |
-| **Role** | Front-line melee tank |
-
-**Visual**: Blue/red torso, skin-tone head and arms, silver sword block held in right hand, faction-colored helmet.
-
-**Combat behavior**:
-- Deals instant melee damage on each attack
-- Spawns a yellow flash effect on hit
-- Must be within 2.5 units of target to attack
-- Auto-engages enemies within detection range (8 units minimum)
-
-**AI behavior** (when AI-controlled):
-- Charges directly at the nearest enemy unit
-- Always prioritized for front-line assault
-
-**Tactical tips**:
-- Use swordsmen as your front line to absorb damage
-- Send them ahead of archers to protect the squishier units
-- Focus-fire by selecting all swordsmen and right-clicking one enemy
+| Stat | Huscarl Swordsman | Norse Hunter (Archer) | Berserker | Shieldbearer |
+|------|-------------------|-----------------------|-----------|--------------|
+| HP | 110 | 55 | 85 | 140 |
+| Attack | 14 | 11 | 22 | 8 |
+| Range | 2.5 (melee) | 14.0 (ranged) | 2.8 (melee) | 3.0 (melee) |
+| Cooldown | 0.9s | 1.4s | 0.7s | 1.6s |
+| Move Speed | 3.8 | 4.2 | 4.0 | 3.0 |
+| Armor | 4 | 0 | 2 | 8 (+15 in wall) |
+| Role | Balanced fighter | Ranged DPS / Scout | Glass cannon | Tank / Protector |
 
 ---
 
-### Archer
+## Huscarl Swordsman
 
-> *Fragile ranged attacker. Deadly at distance but vulnerable in close combat. Keep them behind your swordsmen.*
+**Role:** Balanced melee fighter
+**Playstyle:** Reliable, versatile, the backbone of any Viking crew
 
-| Stat | Value |
-|------|-------|
-| **HP** | 60 |
-| **Attack Damage** | 10 |
-| **Attack Range** | 12.0 units |
-| **Attack Cooldown** | 1.5 seconds |
-| **Move Speed** | 4.0 units/sec |
-| **DPS** | 6.67 |
-| **Role** | Ranged damage dealer |
+### Visual Design
+- Chainmail armor with faction-colored tunic
+- Classic Viking helmet with nasal guard and gold band
+- Sword + round wooden shield with iron boss
+- Leather boots and belt
+- Exposed hands for dexterity
 
-**Visual**: Blue/red torso, skin-tone head and arms, brown bow block held in right hand, faction-colored helmet.
+### Stats Rationale
+The Huscarl is the all-rounder. Decent HP (110), balanced attack (14), and light armor (4) make him effective in any situation without excelling at extremes. His fast attack speed (0.9s) gives consistent damage output.
 
-**Combat behavior**:
-- Fires arrow projectiles that arc toward the target
-- Arrows travel at 15 units/sec with a parabolic arc
-- Arrow deals damage on impact, then self-destructs
-- Can engage from 12 units away -- nearly 5x the swordsman's range
-- Auto-engages enemies within detection range (24 units for archers)
+### Special Ability: Parry
+- **Type:** Passive / Auto-activate
+- **Mechanic:** Every 8 seconds during combat, the Swordsman automatically enters a 1.5s parry stance
+- **Effect:** Blocks 60% of incoming damage during the parry window
+- **Cooldown:** 8 seconds
+- **Visual:** None (internal state)
 
-**AI behavior** (when AI-controlled):
-- Stays behind swordsmen (offsets 6 units back from target)
-- Retreats if an enemy gets within 60% of attack range (7.2 units)
-- Repositions to maintain optimal firing distance
+### Combat Behavior
+- Engages the nearest enemy directly
+- AI swordsmen charge when in aggro range
+- Good in formation with other melee units
+- Can adapt to various threats
 
-**Tactical tips**:
-- Position archers behind your swordsmen
-- Their long range lets them deal damage before enemies close in
-- They're faster than swordsmen (4.0 vs 3.5) so they can kite
-- Fragile at only 60 HP -- protect them from enemy swordsmen
-
----
-
-## Unit Comparison
-
-| Stat | Swordsman | Archer |
-|------|-----------|--------|
-| HP | **100** | 60 |
-| Attack | **15** | 10 |
-| Range | 2.5 | **12.0** |
-| Cooldown | **1.0s** | 1.5s |
-| Speed | 3.5 | **4.0** |
-| DPS | **15.0** | 6.67 |
-| Attack Type | Melee (instant) | Ranged (projectile) |
-| Role | Tank / Front-line | DPS / Back-line |
-| Survivability | High | Low |
+### Tactical Tips
+- Use as your main engagement force
+- Position between shieldbearers and archers
+- Their parry makes them surprisingly tanky in sustained fights
+- Pair with Berserkers for burst + sustain
 
 ---
 
-## Spawn Configuration
+## Norse Hunter (Archer)
 
-Each faction spawns with:
-- **3 Swordsmen** -- positioned in the front line
-- **3 Archers** -- positioned in the back line
+**Role:** Ranged DPS / Scout / Debuffer
+**Playstyle:** Fast, precise, lethal from a distance
 
-Total: **6 units per faction**, **12 units on the battlefield**.
+### Visual Design
+- Light leather armor -- slimmer build than other units
+- Hood in faction colors with brim for shade
+- Bow with visible string held in left hand
+- Quiver with arrows visible on back
+- Leather bracers on both arms
+- Dark fur boots and belt
 
-Spacing: 3 units between each unit in formation.
+### Stats Rationale
+Low HP (55) and zero armor make the Hunter fragile, but 14-range and 4.2 move speed mean she can stay safe. The 11 damage per shot becomes devastating with the Mark ability amplifying all incoming damage.
+
+### Special Ability: Mark Target
+- **Type:** Passive / On-hit
+- **Mechanic:** Every 6 seconds, the next arrow hit applies a Mark to the target
+- **Effect:** Marked targets take 40% bonus damage from ALL sources for 5 seconds
+- **Visual:** Orange diamond floating above the marked unit's head
+- **Cooldown:** 6 seconds per mark
+
+### Combat Behavior
+- Stays at maximum range
+- AI archers retreat if enemies get within 50% of their range
+- Prioritizes marked targets, low-HP enemies, and high-value units (other archers, enraged berserkers)
+- De-prioritizes shieldbearers in shield wall
+- Carries arrows that arc toward targets
+
+### Tactical Tips
+- Keep behind your melee line at all times
+- Mark priority targets before your Berserkers charge in
+- Marked + Berserker Rage = devastating burst damage
+- Run immediately if a melee unit closes distance
+- Best synergy with Shieldbearers who hold the line
 
 ---
 
-## Common Stats (All Units)
+## Berserker
 
-| Property | Value |
-|----------|-------|
-| Detection range | 2x attack range (minimum 8 units) |
-| NavMesh pathfinding | Yes (agent-based) |
-| Collision radius | 0.4 units |
-| Collision height | 2.2 units |
-| Death delay | 0.5 seconds (before removal) |
+**Role:** Heavy melee / Glass cannon
+**Playstyle:** Aggressive, high risk--high reward
+
+### Visual Design
+- Bare-chested with war paint (dark red stripe across chest)
+- Bear/wolf fur cloak draped over shoulders with dark fur collar
+- Wild blonde hair flowing back, thick beard
+- Gold armbands on both arms
+- DUAL AXES -- iron axe heads on wooden handles
+- Skull on belt buckle
+- Dark fur trousers and boots
+- Largest build of any unit
+
+### Stats Rationale
+High attack (22) and fast cooldown (0.7s) deliver the highest burst DPS in the game. 85 HP and only 2 armor means they can't sustain prolonged combat. The Rage ability pushes damage even further at the cost of durability.
+
+### Special Ability: Berserker Rage
+- **Type:** Passive / Auto-trigger at low HP, or on AI engagement
+- **Mechanic:** Activates automatically when HP drops below 40%
+- **Effect:**
+  - +60% attack damage (22 -> 35.2 while enraged)
+  - +30% movement speed (4.0 -> 5.2 while enraged)
+  - -40% armor (already low, becomes nearly zero)
+- **Duration:** 6 seconds
+- **Visual:** Red glowing aura around the Berserker
+- **Cooldown:** Once per life (auto-rages have a single trigger; AI berserkers rage on engagement)
+
+### Secondary Ability: Dual Axe Swing
+- **Type:** Passive / Chance-based
+- **Mechanic:** 30% chance each attack to swing the second axe
+- **Effect:** Extra hit dealing 50% of normal attack damage
+- **Visual:** Double hit effect (orange burst + sparks)
+
+### Secondary Ability: Fear
+- **Type:** Passive / On-hit
+- **Mechanic:** Enemies below 30% HP are slowed by 30% on hit
+- **Effect:** Target moves slower, making it hard to escape
+
+### Combat Behavior
+- AI berserkers activate Rage as soon as they close to 12 units of an enemy
+- Prioritize weak (low HP) enemies for the kill
+- Charge directly at targets -- no kiting or retreating
+- In-combat rage trigger if HP drops below 60% (AI only)
+
+### Tactical Tips
+- Don't send Berserkers in first -- they'll die fast
+- Wait for Shieldbearers to engage, then unleash Berserkers
+- Berserker + Archer Mark on the same target = maximum burst
+- They're expendable but devastating -- treat them as shock troops
+- A single Berserker can clean up 2-3 weakened enemies in a rage
+
+---
+
+## Shieldbearer
+
+**Role:** Tank / Team protector
+**Playstyle:** Defensive, tactical, the immovable wall
+
+### Visual Design
+- Full chainmail armor with faction-colored surcoat
+- Gold cross emblem on surcoat (front)
+- Viking spectacle helm with crest and face plate
+- Iron shoulder pauldrons on both arms
+- LARGE round shield (biggest in the game) -- wooden with iron rim, boss, and faction emblem
+- Spear in right hand (extends above head height)
+- Stout, wide stance
+- Heaviest-armored unit
+
+### Stats Rationale
+Highest HP (140) and armor (8, or 23 in shield wall) make this the tankiest unit. Low attack (8) and slow speed (3.0) balance this out. The Shield Wall ability makes them nearly immovable.
+
+### Special Ability: Shield Wall
+- **Type:** Passive / Auto-activate near enemies
+- **Mechanic:** Automatically activates when within double attack range of enemies
+- **Effect:**
+  - +15 bonus armor (total: 23 armor in shield wall)
+  - -70% movement speed (nearly immobile)
+- **Visual:** Golden shield aura in front of the Shieldbearer
+- **Toggle:** Can be toggled on/off; AI activates when 2+ enemies are nearby
+- **Notes:** Total damage reduction with 23 armor significantly reduces incoming damage
+
+### Secondary Ability: Shield Bash
+- **Type:** Passive / On-hit
+- **Mechanic:** Every attack pushes the enemy back slightly
+- **Effect:** Target is pushed 0.5 units in the direction away from the Shieldbearer
+- **Visual:** White/gold impact ring at the bash point
+
+### Combat Behavior
+- AI shieldbearers advance to the front line first
+- Activate Shield Wall when near enemy units
+- Act as a wall that other units fight behind
+- Push back enemies trying to break through
+- Will hold position rather than chase
+
+### Tactical Tips
+- Always position Shieldbearers in front of your formation
+- Their Shield Wall absorbs enormous amounts of damage
+- Pair with Archers behind them for the safest ranged damage
+- Don't expect them to get kills -- their job is to absorb and delay
+- A Shieldbearer + Shield Wall can tank 3-4 enemies simultaneously
+
+---
+
+## Team Synergy
+
+### Optimal Formation
+
+```
+[BACK]    Archer    Archer
+[MID]   Swordsman  Swordsman  Berserker  Berserker
+[FRONT] Shieldbearer  Shieldbearer
+```
+
+### Combo Strategies
+
+| Combo | Description |
+|-------|-------------|
+| Shield + Archer | Shieldbearer holds the line, Archer fires safely from behind |
+| Mark + Rage | Archer marks a target, then Berserker rages and destroys it |
+| Shield Wall + Swordsmen | Shieldbearers absorb, Swordsmen parry and deal steady damage |
+| Full Push | Shieldbearers advance, everyone follows in formation |
+
+### Why This Squad Works
+- **Shieldbearer** holds enemies in place with Shield Wall
+- **Berserker** smashes through front lines with Rage + Dual Axes
+- **Swordsman** adapts to any threat with Parry + balanced stats
+- **Archer** picks off targets safely and amplifies team damage with Mark
+
+---
+
+## Adding New Unit Types
+
+To add a new Viking character:
+
+1. **Add to enum** in `Unit.cs`:
+   ```csharp
+   public enum UnitType { Swordsman, Archer, Berserker, Shieldbearer, NewType }
+   ```
+
+2. **Add stats** in `Unit.ApplyStats()`:
+   ```csharp
+   case UnitType.NewType:
+       maxHealth = 100f;
+       attackDamage = 12f;
+       // ... etc
+       break;
+   ```
+
+3. **Add visual model** -- create `BuildNewTypeModel()` in `Unit.cs` and add to the switch in `BuildBlockModel()`
+
+4. **Add combat behavior** -- create `AttackAsNewType()` in `UnitCombat.cs` and add to the switch in `Attack()`
+
+5. **Add AI behavior** -- create `HandleNewTypeAI()` in `AIController.cs`
+
+6. **Update spawner** -- add `newTypeCount` field in `UnitSpawner.cs` and spawn in formation
+
+7. **Update UI** -- add name/color in `HealthBar.cs` and breakdown in `GameUI.cs`
 
 ---
 
 ## Planned Future Units
 
-These units are not yet implemented but are planned for future updates:
-
-### Cavalry (Planned)
-- Mounted horseman with high speed and charge damage
-- Expected stats: HP 80, Attack 20, Range 3, Speed 7.0, Cooldown 1.2s
-- Role: Flanking, hit-and-run
-
-### Siege Engine (Planned)
-- Slow catapult with massive range and area damage
-- Expected stats: HP 150, Attack 40, Range 25, Speed 1.5, Cooldown 4.0s
-- Role: Structure destroyer, area denial
-
-### Mage (Planned)
-- Ranged magic user with area-of-effect spells
-- Expected stats: HP 50, Attack 25 (AoE), Range 15, Speed 3.0, Cooldown 3.0s
-- Role: AoE damage, support
-
-### Shield Bearer (Planned)
-- Defensive unit that reduces incoming damage for nearby allies
-- Expected stats: HP 120, Attack 8, Range 2, Speed 3.0, Cooldown 1.5s
-- Role: Tank, damage reduction aura
+| Unit | Role | Signature Ability |
+|------|------|-------------------|
+| Skald (Bard) | Support / Buffer | War Chant -- buffs nearby allies' attack speed |
+| Jarl (Chieftain) | Leader / Aura | Command Presence -- all nearby allies get +10% damage |
+| Shaman (Volva) | Healer / Debuffer | Rune of Healing -- slowly heals nearby allies |
+| Raider | Flanker / Assassin | Ambush -- bonus damage from behind, fast movement |
+| Huscarl Elite | Heavy Infantry | Shield + Axe combo, stronger than base Swordsman |
+| War Dog | Companion | Fast scout, low HP, causes fear |
 
 ---
 
-## Modifying Unit Stats
+## Version History
 
-Unit stats are defined in `Assets/Scripts/Unit.cs` in the `ApplyStats()` method:
-
-```csharp
-public void ApplyStats()
-{
-    if (unitType == UnitType.Swordsman)
-    {
-        maxHealth = 100f;
-        attackDamage = 15f;
-        attackRange = 2.5f;
-        attackCooldown = 1.0f;
-        moveSpeed = 3.5f;
-    }
-    else // Archer
-    {
-        maxHealth = 60f;
-        attackDamage = 10f;
-        attackRange = 12f;
-        attackCooldown = 1.5f;
-        moveSpeed = 4.0f;
-    }
-}
-```
-
-To add a new unit type:
-1. Add the type to the `UnitType` enum in `Unit.cs`
-2. Add a new stats block in `ApplyStats()`
-3. Add visual building logic in `BuildBlockModel()`
-4. Update `UnitSpawner.cs` to spawn the new type
-5. Update AI behavior in `AIController.cs` if needed
-6. Update this document
+- **v0.2** -- Viking overhaul: 4 distinct characters with unique abilities, visual identities, and AI behaviors
+- **v0.1** -- Initial MVP: 2 generic unit types (Swordsman, Archer) with basic block models
