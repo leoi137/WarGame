@@ -3,26 +3,18 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
 
-/// <summary>
-/// Unit Viewer / Showcase mode. Spawns a single unit on a pedestal with
-/// a dedicated camera. Lets you cycle through all 4 unit types, both factions,
-/// rotate with mouse drag, zoom with scroll, and trigger animations/abilities.
-/// </summary>
 public class UnitViewer : MonoBehaviour
 {
     public static UnitViewer Instance { get; private set; }
 
-    // Callback when viewer closes (so menu can reappear)
     public System.Action OnViewerClosed;
 
-    // Current showcase state
     UnitType currentType = UnitType.Swordsman;
     Faction currentFaction = Faction.North;
     GameObject currentUnit;
     UnitAnimator currentAnimator;
     Unit currentUnitScript;
 
-    // Viewer camera & environment
     Camera viewerCamera;
     GameObject pedestal;
     GameObject backdrop;
@@ -30,7 +22,6 @@ public class UnitViewer : MonoBehaviour
     GameObject viewerRoot;
     Canvas viewerCanvas;
 
-    // Camera orbit
     float orbitAngle = 180f;
     float orbitPitch = 20f;
     float orbitDistance = 4.5f;
@@ -40,13 +31,11 @@ public class UnitViewer : MonoBehaviour
     bool isDragging;
     Vector2 lastMousePos;
 
-    // UI elements
     Text unitNameText;
     Text unitStatsText;
     Text unitAbilityText;
     Text controlsHintText;
 
-    // Animation preview state
     bool isPlayingIdle = true;
 
     void Awake()
@@ -56,12 +45,10 @@ public class UnitViewer : MonoBehaviour
 
     public void Open()
     {
-        if (viewerRoot != null) return; // Already open
+        if (viewerRoot != null) return;
 
-        // Pause the game
         Time.timeScale = 0f;
 
-        // Disable main camera
         if (Camera.main != null)
             Camera.main.gameObject.SetActive(false);
 
@@ -74,12 +61,10 @@ public class UnitViewer : MonoBehaviour
     {
         Time.timeScale = 1f;
 
-        // Re-enable main camera
         Camera cam = FindMainCamera();
         if (cam != null)
             cam.gameObject.SetActive(true);
 
-        // Re-enable main camera audio listener
         if (cam != null)
         {
             AudioListener listener = cam.GetComponent<AudioListener>();
@@ -95,7 +80,6 @@ public class UnitViewer : MonoBehaviour
         currentUnit = null;
         Instance = null;
 
-        // Notify caller (main menu) that viewer closed
         OnViewerClosed?.Invoke();
 
         Destroy(gameObject);
@@ -115,7 +99,6 @@ public class UnitViewer : MonoBehaviour
     {
         viewerRoot = new GameObject("UnitViewerRoot");
 
-        // Viewer camera
         GameObject camObj = new GameObject("ViewerCamera");
         camObj.transform.SetParent(viewerRoot.transform);
         viewerCamera = camObj.AddComponent<Camera>();
@@ -123,10 +106,9 @@ public class UnitViewer : MonoBehaviour
         viewerCamera.backgroundColor = new Color(0.45f, 0.6f, 0.8f);
         viewerCamera.nearClipPlane = 0.1f;
         viewerCamera.farClipPlane = 100f;
-        viewerCamera.depth = 10; // Render on top
+        viewerCamera.depth = 10;
         camObj.AddComponent<AudioListener>();
 
-        // Disable main camera's audio listener to avoid warning
         Camera mainCam = FindMainCamera();
         if (mainCam != null)
         {
@@ -134,26 +116,23 @@ public class UnitViewer : MonoBehaviour
             if (mainListener != null) mainListener.enabled = false;
         }
 
-        // Simple ground pedestal (no walls, fully open)
         pedestal = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         pedestal.name = "Pedestal";
         pedestal.transform.SetParent(viewerRoot.transform);
         pedestal.transform.position = new Vector3(0, -0.05f, 0);
         pedestal.transform.localScale = new Vector3(3f, 0.1f, 3f);
         Renderer pedRend = pedestal.GetComponent<Renderer>();
-        pedRend.material = ShaderHelper.CreateMaterial(new Color(0.3f, 0.25f, 0.2f));
+        pedRend.material = ShaderHelper.CreateMaterial(new Color(0.3f, 0.25f, 0.2f), 0, 0.3f);
 
-        // Inner ring accent
         GameObject ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
         ring.name = "PedestalRing";
         ring.transform.SetParent(viewerRoot.transform);
         ring.transform.position = new Vector3(0, -0.03f, 0);
         ring.transform.localScale = new Vector3(2.2f, 0.08f, 2.2f);
         Renderer ringRend = ring.GetComponent<Renderer>();
-        ringRend.material = ShaderHelper.CreateMaterial(new Color(0.4f, 0.33f, 0.25f));
+        ringRend.material = ShaderHelper.CreateMaterial(new Color(0.4f, 0.33f, 0.25f), 0, 0.35f);
         Destroy(ring.GetComponent<Collider>());
 
-        // Directional light for the viewer
         viewerLight = new GameObject("ViewerLight");
         viewerLight.transform.SetParent(viewerRoot.transform);
         viewerLight.transform.rotation = Quaternion.Euler(40f, -30f, 0f);
@@ -162,7 +141,6 @@ public class UnitViewer : MonoBehaviour
         light.intensity = 1.2f;
         light.color = new Color(1f, 0.95f, 0.85f);
 
-        // Fill light
         GameObject fillLightObj = new GameObject("FillLight");
         fillLightObj.transform.SetParent(viewerRoot.transform);
         fillLightObj.transform.position = new Vector3(-3f, 2f, 2f);
@@ -172,7 +150,6 @@ public class UnitViewer : MonoBehaviour
         fillLight.range = 10f;
         fillLight.color = new Color(0.7f, 0.8f, 1f);
 
-        // Rim light
         GameObject rimLightObj = new GameObject("RimLight");
         rimLightObj.transform.SetParent(viewerRoot.transform);
         rimLightObj.transform.position = new Vector3(2f, 3f, -2f);
@@ -199,7 +176,6 @@ public class UnitViewer : MonoBehaviour
 
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // Ensure EventSystem
         if (FindAnyObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
         {
             GameObject es = new GameObject("EventSystem");
@@ -207,35 +183,29 @@ public class UnitViewer : MonoBehaviour
             es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
         }
 
-        // Title
         unitNameText = CreateUIText(canvasObj.transform, "UnitName",
             new Vector2(0.5f, 1f), new Vector2(0, -20), new Vector2(600, 50),
             "", 32, FontStyle.Bold, new Color(1f, 0.85f, 0.4f), TextAnchor.UpperCenter);
 
-        // Stats panel (left side)
         unitStatsText = CreateUIText(canvasObj.transform, "Stats",
             new Vector2(0f, 0.5f), new Vector2(25, 0), new Vector2(400, 300),
             "", 17, FontStyle.Normal, Color.white, TextAnchor.MiddleLeft);
 
-        // Ability text (left side below stats)
         unitAbilityText = CreateUIText(canvasObj.transform, "Ability",
             new Vector2(0f, 0f), new Vector2(25, 120), new Vector2(450, 100),
             "", 15, FontStyle.Normal, new Color(1f, 0.85f, 0.4f), TextAnchor.LowerLeft);
 
-        // Controls hint (bottom center)
         controlsHintText = CreateUIText(canvasObj.transform, "Controls",
             new Vector2(0.5f, 0f), new Vector2(0, 15), new Vector2(800, 35),
             "Drag: Rotate  |  Scroll: Zoom  |  1-4: Animations  |  F: Faction  |  ESC: Close",
             14, FontStyle.Normal, new Color(0.7f, 0.7f, 0.7f), TextAnchor.LowerCenter);
 
-        // Navigation buttons
         float btnY = 0f;
         CreateButton(canvasObj.transform, "PrevBtn", "<", new Vector2(0f, 0.5f), new Vector2(25, btnY),
             new Vector2(50, 50), () => CycleUnit(-1));
         CreateButton(canvasObj.transform, "NextBtn", ">", new Vector2(1f, 0.5f), new Vector2(-25, btnY),
             new Vector2(50, 50), () => CycleUnit(1));
 
-        // Action buttons (right side)
         float rightX = -25f;
         CreateButton(canvasObj.transform, "IdleBtn", "IDLE", new Vector2(1f, 1f), new Vector2(rightX, -25),
             new Vector2(130, 40), () => TriggerAnim("idle"));
@@ -309,7 +279,6 @@ public class UnitViewer : MonoBehaviour
         colors.pressedColor = baseCol * 0.7f;
         btn.colors = colors;
 
-        // Button text
         GameObject textObj = new GameObject("Text");
         textObj.transform.SetParent(btnObj.transform, false);
 
@@ -342,14 +311,10 @@ public class UnitViewer : MonoBehaviour
         currentUnit.transform.position = Vector3.zero;
         currentUnit.transform.rotation = Quaternion.Euler(0, 180f, 0);
 
-        // CapsuleCollider (needed by some scripts)
         CapsuleCollider col = currentUnit.AddComponent<CapsuleCollider>();
         col.center = new Vector3(0, 1.1f, 0);
         col.radius = 0.4f;
         col.height = 2.2f;
-
-        // NavMeshAgent -- disable it since there's no NavMesh
-        // We won't add NavMeshAgent in the viewer to avoid errors.
 
         // Unit component
         currentUnitScript = currentUnit.AddComponent<Unit>();
@@ -358,9 +323,27 @@ public class UnitViewer : MonoBehaviour
         currentUnitScript.useUnscaledTime = true;
         currentUnitScript.Initialize();
 
-        // Animator (use unscaled time since game is paused)
+        // Animator with pivot references
         currentAnimator = currentUnit.AddComponent<UnitAnimator>();
         currentAnimator.useUnscaledTime = true;
+
+        // Wire pivot references
+        currentAnimator.pivotHips = currentUnitScript.pivotHips;
+        currentAnimator.pivotWaist = currentUnitScript.pivotWaist;
+        currentAnimator.pivotNeck = currentUnitScript.pivotNeck;
+        currentAnimator.pivotLeftShoulder = currentUnitScript.pivotLeftShoulder;
+        currentAnimator.pivotRightShoulder = currentUnitScript.pivotRightShoulder;
+        currentAnimator.pivotLeftElbow = currentUnitScript.pivotLeftElbow;
+        currentAnimator.pivotRightElbow = currentUnitScript.pivotRightElbow;
+        currentAnimator.pivotLeftHand = currentUnitScript.pivotLeftHand;
+        currentAnimator.pivotRightHand = currentUnitScript.pivotRightHand;
+        currentAnimator.pivotLeftHip = currentUnitScript.pivotLeftHip;
+        currentAnimator.pivotRightHip = currentUnitScript.pivotRightHip;
+        currentAnimator.pivotLeftKnee = currentUnitScript.pivotLeftKnee;
+        currentAnimator.pivotRightKnee = currentUnitScript.pivotRightKnee;
+        currentAnimator.pivotCape = currentUnitScript.pivotCape;
+
+        // Legacy references
         currentAnimator.head = currentUnitScript.partHead;
         currentAnimator.body = currentUnitScript.partBody;
         currentAnimator.leftArm = currentUnitScript.partLeftArm;
@@ -369,6 +352,7 @@ public class UnitViewer : MonoBehaviour
         currentAnimator.rightLeg = currentUnitScript.partRightLeg;
         currentAnimator.weapon = currentUnitScript.partWeapon;
         currentAnimator.weaponLeft = currentUnitScript.partWeaponLeft;
+
         currentAnimator.InitializeRests();
 
         UpdateUI();
@@ -417,7 +401,6 @@ public class UnitViewer : MonoBehaviour
         switch (currentType)
         {
             case UnitType.Berserker:
-                // Reset rage state first so we can trigger again
                 currentUnitScript.isEnraged = false;
                 currentUnitScript.ApplyStats();
                 currentUnitScript.ActivateRage();
@@ -426,12 +409,10 @@ public class UnitViewer : MonoBehaviour
                 currentUnitScript.ActivateShieldWall();
                 break;
             case UnitType.Archer:
-                // Show the mark effect on self for demo
                 currentUnitScript.isMarked = false;
                 currentUnitScript.ApplyMark(5f);
                 break;
             case UnitType.Swordsman:
-                // Flash parry effect
                 TriggerAnim("attack");
                 break;
         }
@@ -452,7 +433,6 @@ public class UnitViewer : MonoBehaviour
         unitNameText.text = fullName;
         unitNameText.color = factionColor;
 
-        // Stats
         if (currentUnitScript != null)
         {
             unitStatsText.text =
@@ -464,7 +444,6 @@ public class UnitViewer : MonoBehaviour
                 $"Armor:        {currentUnitScript.armor:F0}";
         }
 
-        // Ability
         unitAbilityText.text = GetAbilityDescription(currentType);
     }
 
@@ -507,20 +486,15 @@ public class UnitViewer : MonoBehaviour
 
     void Update()
     {
-        // Use unscaled time since game is paused
         HandleOrbitInput();
         HandleKeyboardShortcuts();
 
-        // Smooth zoom
         orbitDistance = Mathf.SmoothDamp(orbitDistance, targetOrbitDistance, ref orbitDistVelocity, 0.1f,
             Mathf.Infinity, Time.unscaledDeltaTime);
         UpdateCameraOrbit();
 
-        // Slowly rotate the unit on pedestal when not dragging
         if (!isDragging && currentUnit != null)
-        {
             orbitAngle += 15f * Time.unscaledDeltaTime;
-        }
     }
 
     void HandleOrbitInput()
@@ -528,11 +502,8 @@ public class UnitViewer : MonoBehaviour
         if (Mouse.current == null) return;
 
         Vector2 mousePos = Mouse.current.position.ReadValue();
-
-        // Right mouse or left mouse drag to orbit
         bool mouseDown = Mouse.current.leftButton.isPressed || Mouse.current.rightButton.isPressed;
 
-        // Only count as drag if not over a UI button (simple: check Y > 100 and X > 200)
         if (mouseDown)
         {
             if (!isDragging)
@@ -552,7 +523,6 @@ public class UnitViewer : MonoBehaviour
             isDragging = false;
         }
 
-        // Scroll to zoom
         float scroll = Mouse.current.scroll.ReadValue().y;
         if (Mathf.Abs(scroll) > 0.01f)
         {
@@ -594,14 +564,12 @@ public class UnitViewer : MonoBehaviour
         float y = Mathf.Sin(pitchRad) * orbitDistance + orbitTarget.y;
         float z = Mathf.Cos(rad) * Mathf.Cos(pitchRad) * orbitDistance;
 
-        viewerCamera.transform.position = orbitTarget + new Vector3(x, y - orbitTarget.y + Mathf.Sin(pitchRad) * orbitDistance, z);
-        viewerCamera.transform.position = new Vector3(x, Mathf.Max(0.3f, Mathf.Sin(pitchRad) * orbitDistance + orbitTarget.y), z);
+        viewerCamera.transform.position = new Vector3(x, Mathf.Max(0.3f, y), z);
         viewerCamera.transform.LookAt(orbitTarget);
     }
 
     void OnDestroy()
     {
-        // Ensure time scale is restored if destroyed unexpectedly
         Time.timeScale = 1f;
     }
 }

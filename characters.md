@@ -24,11 +24,13 @@ A detailed breakdown of all unit types in the Viking warband system, including s
 **Playstyle:** Reliable, versatile, the backbone of any Viking crew
 
 ### Visual Design
-- Chainmail armor with faction-colored tunic
-- Classic Viking helmet with nasal guard and gold band
-- Sword + round wooden shield with iron boss
-- Leather boots and belt
-- Exposed hands for dexterity
+- Chainmail armor (PBR metallic) with faction-colored cloth tunic
+- Classic Viking nasal helmet with gold band accent and steel rim
+- Forward-held Viking sword (steel blade extending from gold crossguard and leather grip)
+- Round wooden shield with iron boss and cross brace, held outward on left arm
+- Leather boots and belt with gold buckle
+- Exposed skin hands at end of chainmail sleeves
+- Faction-colored cape with cloth physics simulation
 
 ### Stats Rationale
 The Huscarl is the all-rounder. Decent HP (110), balanced attack (14), and light armor (4) make him effective in any situation without excelling at extremes. His fast attack speed (0.9s) gives consistent damage output.
@@ -38,7 +40,7 @@ The Huscarl is the all-rounder. Decent HP (110), balanced attack (14), and light
 - **Mechanic:** Every 8 seconds during combat, the Swordsman automatically enters a 1.5s parry stance
 - **Effect:** Blocks 60% of incoming damage during the parry window
 - **Cooldown:** 8 seconds
-- **Visual:** None (internal state)
+- **Visual:** Weapon emits a brief glow during parry window; sparks on successful parry
 
 ### Combat Behavior
 - Engages the nearest enemy directly
@@ -62,10 +64,11 @@ The Huscarl is the all-rounder. Decent HP (110), balanced attack (14), and light
 ### Visual Design
 - Light leather armor -- slimmer build than other units
 - Hood in faction colors with brim for shade
-- Bow with visible string held in left hand
-- Quiver with arrows visible on back
-- Leather bracers on both arms
+- Bow held forward in left hand (staves vertical, string behind grip)
+- Quiver with arrow tips visible on back
+- Leather bracers on both forearms
 - Dark fur boots and belt
+- Short faction-colored cloak with cloth physics
 
 ### Stats Rationale
 Low HP (55) and zero armor make the Hunter fragile, but 14-range and 4.2 move speed mean she can stay safe. The 11 damage per shot becomes devastating with the Mark ability amplifying all incoming damage.
@@ -99,14 +102,15 @@ Low HP (55) and zero armor make the Hunter fragile, but 14-range and 4.2 move sp
 **Playstyle:** Aggressive, high risk--high reward
 
 ### Visual Design
-- Bare-chested with war paint (dark red stripe across chest)
+- Bare-chested with war paint (dark red cross on chest) and visible scars
 - Bear/wolf fur cloak draped over shoulders with dark fur collar
-- Wild blonde hair flowing back, thick beard
-- Gold armbands on both arms
-- DUAL AXES -- iron axe heads on wooden handles
-- Skull on belt buckle
-- Dark fur trousers and boots
-- Largest build of any unit
+- Wild blonde hair (3 overlapping sphere tufts), thick beard
+- Fierce red-glowing eyes
+- Gold armbands on both upper arms
+- DUAL AXES -- iron axe heads on wooden handles, held forward from each hand
+- Bone skull on leather belt buckle
+- Dark fur trousers and heavy leather boots
+- Largest, widest build of any unit (widened skeleton shoulders and hips)
 
 ### Stats Rationale
 High attack (22) and fast cooldown (0.7s) deliver the highest burst DPS in the game. 85 HP and only 2 armor means they can't sustain prolonged combat. The Rage ability pushes damage even further at the cost of durability.
@@ -154,14 +158,14 @@ High attack (22) and fast cooldown (0.7s) deliver the highest burst DPS in the g
 **Playstyle:** Defensive, tactical, the immovable wall
 
 ### Visual Design
-- Full chainmail armor with faction-colored surcoat
-- Gold cross emblem on surcoat (front)
-- Viking spectacle helm with crest and face plate
+- Full chainmail armor (PBR metallic) with faction-colored surcoat and gold cross emblem
+- Viking spectacle helm with dome, face plate, and raised crest
 - Iron shoulder pauldrons on both arms
-- LARGE round shield (biggest in the game) -- wooden with iron rim, boss, and faction emblem
-- Spear in right hand (extends above head height)
-- Stout, wide stance
+- LARGE round shield (biggest in the game) -- wooden disc with iron rim (top/bottom), center boss, and faction cross emblem, held outward on left arm
+- Long spear in right hand extending forward with steel head and fine edge tip
+- Stout, wide stance (widened skeleton shoulders and hips)
 - Heaviest-armored unit
+- Faction-colored cape with cloth physics
 
 ### Stats Rationale
 Highest HP (140) and armor (8, or 23 in shield wall) make this the tankiest unit. Low attack (8) and slow speed (3.0) balance this out. The Shield Wall ability makes them nearly immovable.
@@ -227,31 +231,19 @@ Highest HP (140) and armor (8, or 23 in shield wall) make this the tankiest unit
 
 ## Adding New Unit Types
 
-To add a new Viking character:
+For the full technical guide on skeleton construction, material system, weapon positioning conventions, and step-by-step instructions for building a new character, see **[character-building.md](character-building.md)**.
 
-1. **Add to enum** in `Unit.cs`:
-   ```csharp
-   public enum UnitType { Swordsman, Archer, Berserker, Shieldbearer, NewType }
-   ```
+Quick checklist:
 
-2. **Add stats** in `Unit.ApplyStats()`:
-   ```csharp
-   case UnitType.NewType:
-       maxHealth = 100f;
-       attackDamage = 12f;
-       // ... etc
-       break;
-   ```
-
-3. **Add visual model** -- create `BuildNewTypeModel()` in `Unit.cs` and add to the switch in `BuildBlockModel()`
-
-4. **Add combat behavior** -- create `AttackAsNewType()` in `UnitCombat.cs` and add to the switch in `Attack()`
-
-5. **Add AI behavior** -- create `HandleNewTypeAI()` in `AIController.cs`
-
-6. **Update spawner** -- add `newTypeCount` field in `UnitSpawner.cs` and spawn in formation
-
-7. **Update UI** -- add name/color in `HealthBar.cs` and breakdown in `GameUI.cs`
+1. **Add to enum** in `Unit.cs`
+2. **Add stats** in `Unit.ApplyStats()`
+3. **Create model builder** -- `BuildNewTypeModel()` in `Unit.cs` using the 14-joint pivot skeleton
+4. **Add combat behavior** -- `AttackAsNewType()` in `UnitCombat.cs`
+5. **Add animations** -- idle, walk, attack cases in `UnitAnimator.cs`
+6. **Add weapon trail** -- preset in `TrailEffect.cs`
+7. **Add AI behavior** -- `HandleNewTypeAI()` in `AIController.cs`
+8. **Wire up spawner** -- pivot references in `UnitSpawner.cs`
+9. **Update UI** -- name/color in `HealthBar.cs` and breakdown in `GameUI.cs`
 
 ---
 
@@ -270,5 +262,6 @@ To add a new Viking character:
 
 ## Version History
 
+- **v0.3** -- Premium graphics overhaul: PBR materials, forward-held weapons, skeletal animation, cloth physics, weapon trails, enhanced VFX
 - **v0.2** -- Viking overhaul: 4 distinct characters with unique abilities, visual identities, and AI behaviors
 - **v0.1** -- Initial MVP: 2 generic unit types (Swordsman, Archer) with basic block models

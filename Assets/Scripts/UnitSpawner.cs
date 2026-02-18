@@ -26,26 +26,18 @@ public class UnitSpawner : MonoBehaviour
         float centerX = mapSize * 0.5f;
         float centerZ = mapSize * 0.5f;
 
-        // Both factions spawn at exactly equal distance from the map center
         float northBaseX = centerX - distanceFromCenter;
         float southBaseX = centerX + distanceFromCenter;
 
-        // North faces right (+X toward center), South faces left (-X toward center)
         SpawnFactionUnits(Faction.North, northBaseX, centerZ, 1f);
         SpawnFactionUnits(Faction.South, southBaseX, centerZ, -1f);
     }
 
     void SpawnFactionUnits(Faction faction, float baseX, float centerZ, float facing)
     {
-        // facing: +1 means facing right (+X), -1 means facing left (-X)
-        // Formation rows measured from baseX:
-        //   Row 1 (front):  closest to the enemy (toward center)
-        //   Row 2 (mid):    behind the front
-        //   Row 3 (back):   furthest from enemy
-
-        float row1X = baseX + rowSpacing * 2f * facing;  // Front: shieldbearers
-        float row2X = baseX + rowSpacing * 0.5f * facing; // Mid: swordsmen + berserkers
-        float row3X = baseX - rowSpacing * 1.5f * facing; // Back: archers
+        float row1X = baseX + rowSpacing * 2f * facing;
+        float row2X = baseX + rowSpacing * 0.5f * facing;
+        float row3X = baseX - rowSpacing * 1.5f * facing;
 
         Quaternion faceRotation = Quaternion.LookRotation(new Vector3(facing, 0, 0));
 
@@ -92,7 +84,6 @@ public class UnitSpawner : MonoBehaviour
         unitObj.transform.rotation = rotation;
         unitObj.layer = 0;
 
-        // Collider size varies by unit type
         CapsuleCollider col = unitObj.AddComponent<CapsuleCollider>();
         col.center = new Vector3(0, 1.1f, 0);
 
@@ -112,28 +103,49 @@ public class UnitSpawner : MonoBehaviour
                 break;
         }
 
-        // NavMeshAgent
         NavMeshAgent agent = unitObj.AddComponent<NavMeshAgent>();
         agent.radius = col.radius;
         agent.height = 2.0f;
         agent.baseOffset = 0f;
 
-        // Unit component
         Unit unit = unitObj.AddComponent<Unit>();
         unit.faction = faction;
         unit.unitType = unitType;
         unit.Initialize();
 
-        // Set agent speed from unit stats
         agent.speed = unit.moveSpeed;
 
-        // Other components
         unitObj.AddComponent<UnitMovement>();
         unitObj.AddComponent<UnitCombat>();
         unitObj.AddComponent<HealthBar>();
 
-        // Animator: wire up body part references
+        // Animator: wire pivot references from Unit's skeleton
         UnitAnimator anim = unitObj.AddComponent<UnitAnimator>();
+        WireAnimatorPivots(anim, unit);
+        anim.InitializeRests();
+
+        if (FactionManager.Instance != null)
+            FactionManager.Instance.RegisterUnit(unit);
+    }
+
+    void WireAnimatorPivots(UnitAnimator anim, Unit unit)
+    {
+        anim.pivotHips = unit.pivotHips;
+        anim.pivotWaist = unit.pivotWaist;
+        anim.pivotNeck = unit.pivotNeck;
+        anim.pivotLeftShoulder = unit.pivotLeftShoulder;
+        anim.pivotRightShoulder = unit.pivotRightShoulder;
+        anim.pivotLeftElbow = unit.pivotLeftElbow;
+        anim.pivotRightElbow = unit.pivotRightElbow;
+        anim.pivotLeftHand = unit.pivotLeftHand;
+        anim.pivotRightHand = unit.pivotRightHand;
+        anim.pivotLeftHip = unit.pivotLeftHip;
+        anim.pivotRightHip = unit.pivotRightHip;
+        anim.pivotLeftKnee = unit.pivotLeftKnee;
+        anim.pivotRightKnee = unit.pivotRightKnee;
+        anim.pivotCape = unit.pivotCape;
+
+        // Legacy references (for backward compat)
         anim.head = unit.partHead;
         anim.body = unit.partBody;
         anim.leftArm = unit.partLeftArm;
@@ -142,21 +154,12 @@ public class UnitSpawner : MonoBehaviour
         anim.rightLeg = unit.partRightLeg;
         anim.weapon = unit.partWeapon;
         anim.weaponLeft = unit.partWeaponLeft;
-        anim.InitializeRests();
-
-        // Register
-        if (FactionManager.Instance != null)
-        {
-            FactionManager.Instance.RegisterUnit(unit);
-        }
     }
 
     float GetTerrainHeight(Vector3 pos)
     {
         if (Terrain.activeTerrain != null)
-        {
             return Terrain.activeTerrain.SampleHeight(pos);
-        }
         return 0f;
     }
 }
