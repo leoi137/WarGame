@@ -22,7 +22,11 @@ A real-time strategy game built in Unity 6 where two Viking warbands clash on a 
 
 ## How to Play
 
-You command the **Norse Warband** (blue units) on the left side of the map. The **Rival Clan** (red units) on the right is controlled by AI.
+The game opens with a **Main Menu** offering two options:
+- **START BATTLE** -- Jump into a full battle against the AI
+- **VIEW UNITS** -- Browse all unit types up close with an orbit camera, cycle through them, and preview their animations
+
+In battle, you command the **Norse Warband** (blue units) on the north side of the map. The **Rival Clan** (red units) on the south side is controlled by AI.
 
 Select your units, right-click to move or attack, and destroy all enemy warriors to win. If you lose all your units, the AI wins.
 
@@ -35,7 +39,7 @@ Select your units, right-click to move or attack, and destroy all enemy warriors
 | **Berserker** | Glass cannon | Rages at low HP (+60% DMG, +30% SPD) |
 | **Shieldbearer** | Tank / Protector | Shield Wall (+15 armor, -70% speed) |
 
-For full stats, abilities, and tactical tips, see **[characters.md](characters.md)**. For the technical guide on how the procedural unit system works (skeleton, pivots, materials, animations), see **[character-building.md](character-building.md)**.
+For full stats, abilities, and tactical tips, see **[characters.md](Docs/characters.md)**. For the technical guide on how the procedural unit system works (skeleton, pivots, materials, animations), see **[character-building.md](Docs/character-building.md)**.
 
 ## Game Features
 
@@ -86,7 +90,14 @@ Each unit is procedurally built at runtime using a premium low-poly style. Model
 - Evaluates army strength to decide aggression level
 - Decisions every 1.5 seconds with 25-unit aggro range
 
+### Unit Viewer
+- Pre-battle unit showcase accessible from the main menu
+- Orbit camera to inspect each unit type up close
+- Cycle through all unit types
+- Play idle, walk, and attack animations on demand
+
 ### UI
+- Main menu with Start Battle and View Units options
 - HUD showing unit counts with type breakdown per faction
 - Selected unit info with stats (HP, ATK, ARM, SPD) and active status effects
 - Ability hints for selected unit type
@@ -98,7 +109,7 @@ Each unit is procedurally built at runtime using a premium low-poly style. Model
 
 | Script | Purpose |
 |--------|---------|
-| `GameBootstrap.cs` | Master initializer -- orchestrates all setup in correct order |
+| `GameBootstrap.cs` | Master initializer -- main menu (Start Battle / View Units), orchestrates all setup |
 | `MapGenerator.cs` | Procedural terrain, river, trees, lighting, NavMesh bake |
 | `Unit.cs` | Unit data, stats, abilities (rage/wall/mark), skeletal model builder with 14-joint pivot hierarchy for all 4 types |
 | `UnitMovement.cs` | NavMeshAgent-based pathfinding and movement |
@@ -116,6 +127,7 @@ Each unit is procedurally built at runtime using a premium low-poly style. Model
 | `UnitAnimator.cs` | Rotation-based skeletal animation: idle, walk, attack choreography per unit type, death ragdoll, cape physics |
 | `TrailEffect.cs` | Weapon trail renderer attachment for swords, axes, spears, and arrows |
 | `DamagePopup.cs` | World-space floating damage numbers with color-coding and scale animation |
+| `UnitViewer.cs` | Pre-battle unit viewer with orbit camera, unit cycling, and animation preview |
 | `CameraShake.cs` | Perlin noise-based camera shake for combat impacts |
 
 ### Editor Tools
@@ -146,6 +158,9 @@ Each unit is procedurally built at runtime using a premium low-poly style. Model
 
 ```
 WorldWars/
+  Docs/
+    characters.md
+    character-building.md
   Assets/
     Scenes/
       SampleScene.unity
@@ -156,45 +171,30 @@ WorldWars/
       UnitMovement.cs
       UnitCombat.cs
       UnitAnimator.cs
+      UnitSpawner.cs
+      UnitViewer.cs
       HealthBar.cs
       SelectionManager.cs
       CommandManager.cs
       FactionManager.cs
       Projectile.cs
       AIController.cs
-      UnitSpawner.cs
       CameraController.cs
+      CameraShake.cs
       GameUI.cs
       ShaderHelper.cs
       TrailEffect.cs
       DamagePopup.cs
-      CameraShake.cs
       Editor/
         WorldWarsSetup.cs
         WorldWarsValidator.cs
     Settings/
       UniversalRP.asset
       Renderer2D.asset
-      ForwardRenderer.asset
   Packages/
     manifest.json
   ProjectSettings/
 ```
-
-## Future Roadmap
-
-- [ ] More Viking classes (Skald, Jarl, Shaman, Raider, War Dog)
-- [ ] Norse mythology powers (runes, Odin's favor, Valkyrie revive)
-- [ ] Resource gathering (silver, timber, mead)
-- [ ] Viking longhouse base building
-- [ ] Multiple map biomes (fjords, tundra, forests, coastline)
-- [ ] Territory conquest with a world map
-- [ ] Boss enemies (Draugr, trolls, rival Jarls)
-- [ ] Multiplayer raids
-- [x] ~~Free low-poly asset pack integration~~ (replaced by premium procedural unit graphics)
-- [ ] Mobile port (Flutter/Swift wrapper or direct Unity build)
-- [ ] Sound effects and Viking horn music
-- [ ] Names and backstories for each warrior
 
 ## Version History
 
