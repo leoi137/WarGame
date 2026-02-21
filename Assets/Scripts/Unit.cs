@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum Faction { North, South }
 public enum UnitType { Swordsman, Archer, Berserker, Shieldbearer }
 
 public class Unit : MonoBehaviour

@@ -359,9 +359,9 @@ Create assembly definitions for test isolation:
 
 ### Checklist
 
-- [ ] Create all 18 directories listed above (Core, Data/Models, Data/Databases, Data/Factions, WorldMap, Battle, Units, AI, Terrain, UI, VFX, Rendering, Campaign, Editor, Tests, Tests/EditMode, Tests/PlayMode)
-- [ ] Create `Assets/Tests/EditMode/EditModeTests.asmdef` with Editor platform and NUnit references
-- [ ] Create `Assets/Tests/PlayMode/PlayModeTests.asmdef` with NUnit and TestRunner references
+- [x] Create all 18 directories listed above (Core, Data/Models, Data/Databases, Data/Factions, WorldMap, Battle, Units, AI, Terrain, UI, VFX, Rendering, Campaign, Editor, Tests, Tests/EditMode, Tests/PlayMode)
+- [x] Create `Assets/Tests/EditMode/EditModeTests.asmdef` with Editor platform and NUnit references
+- [x] Create `Assets/Tests/PlayMode/PlayModeTests.asmdef` with NUnit and TestRunner references
 - [ ] Verify project compiles with zero errors after restructure
 - [ ] Run existing Viking battle scene and confirm units spawn, fight, and die correctly (no regressions)
 - [ ] All Phase 0 tests written and passing
@@ -506,11 +506,11 @@ Top-level state machine replacing GameBootstrap as the primary entry point:
 
 ### Checklist
 
-- [ ] `Enums.cs` created with all 12 enumerations (GameFlowState with 12 values, BattlePhase, TerrainType with 10, UnitCategory with 9, ArmorStyle, HelmetStyle, WeaponStyle, ShieldStyle, MaterialPreset, Region, AbilityTrigger, Faction)
-- [ ] `EventBus.cs` created with Subscribe/Unsubscribe/Publish/Clear and all 19 event structs (10 base + 9 campaign)
-- [ ] `GameConfig.cs` created with all 12 static constants (DefaultMapSize, SimulationTickRate, DefaultBattleSpeed, MaxBattleSpeed, PlacementZoneDepth, MaxUnitsPerSide, BaseDetectionRange, WorldMapWidth, WorldMapHeight, UnitBudgetScaleFactor, TerrainHeightScale, CountdownDuration)
-- [ ] `GameManager.cs` created with singleton, state machine, TransitionTo, StartQuickBattle, EndBattle, ReturnToWorldMap, ReturnToMainMenu
-- [ ] `BattleRandom.cs` created wrapping System.Random with Range(float), Range(int), Chance(float), Value
+- [x] `Enums.cs` created with all 12 enumerations (GameFlowState with 12 values, BattlePhase, TerrainType with 10, UnitCategory with 9, ArmorStyle, HelmetStyle, WeaponStyle, ShieldStyle, MaterialPreset, Region, AbilityTrigger, Faction)
+- [x] `EventBus.cs` created with Subscribe/Unsubscribe/Publish/Clear and all 19 event structs (10 base + 9 campaign)
+- [x] `GameConfig.cs` created with all 12 static constants (DefaultMapSize, SimulationTickRate, DefaultBattleSpeed, MaxBattleSpeed, PlacementZoneDepth, MaxUnitsPerSide, BaseDetectionRange, WorldMapWidth, WorldMapHeight, UnitBudgetScaleFactor, TerrainHeightScale, CountdownDuration)
+- [x] `GameManager.cs` created with singleton, state machine, TransitionTo, StartQuickBattle, EndBattle, ReturnToWorldMap, ReturnToMainMenu
+- [x] `BattleRandom.cs` created wrapping System.Random with Range(float), Range(int), Chance(float), Value
 - [ ] All Phase 1 tests written and passing (16 tests total)
 - [ ] Project compiles with no errors
 - [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 1: Core foundation — Enums, EventBus, GameConfig, GameManager, BattleRandom"`
