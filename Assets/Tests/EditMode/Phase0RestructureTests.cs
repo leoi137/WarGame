@@ -3,36 +3,57 @@ using System.IO;
 
 namespace WorldWars.Tests.EditMode
 {
+    /// <summary>
+    /// Phase 0: Verify project structure is intact after directory restructure.
+    /// </summary>
     public class Phase0RestructureTests
     {
-        private const string Root = "/home/leandro/Desktop/Resources/OtherApps/WorldWars";
+        private static readonly string Root = Path.GetFullPath(
+            Path.Combine(UnityEngine.Application.dataPath, ".."));
 
         [Test]
         public void Test_ProjectCompilesAfterRestructure()
         {
-            // This test is a placeholder assertion that runs only after compilation succeeds.
-            // If scripts fail to compile, Unity will not execute this test suite.
             Assert.Pass("Project compiled; EditMode tests are running.");
         }
 
         [Test]
-        public void Test_EditModeAssemblyExists()
+        public void Test_CoreDirectoryStructureExists()
         {
-            var path = Path.Combine(Root, "Assets/Tests/EditMode/EditModeTests.asmdef");
-            Assert.That(File.Exists(path), Is.True, $"Missing asmdef at: {path}");
+            string[] requiredDirs =
+            {
+                "Assets/Scripts/Core",
+                "Assets/Scripts/Data/Models",
+                "Assets/Scripts/Data/Databases",
+                "Assets/Scripts/Data/Factions",
+                "Assets/Tests/EditMode",
+                "Assets/Tests/PlayMode"
+            };
 
-            var text = File.ReadAllText(path);
-            Assert.That(text.Contains("\"name\": \"EditModeTests\""), Is.True);
+            foreach (string dir in requiredDirs)
+            {
+                string full = Path.Combine(Root, dir);
+                Assert.That(Directory.Exists(full), Is.True, $"Missing directory: {dir}");
+            }
         }
 
         [Test]
-        public void Test_PlayModeAssemblyExists()
+        public void Test_CoreScriptsExist()
         {
-            var path = Path.Combine(Root, "Assets/Tests/PlayMode/PlayModeTests.asmdef");
-            Assert.That(File.Exists(path), Is.True, $"Missing asmdef at: {path}");
+            string[] requiredFiles =
+            {
+                "Assets/Scripts/Core/Enums.cs",
+                "Assets/Scripts/Core/EventBus.cs",
+                "Assets/Scripts/Core/GameConfig.cs",
+                "Assets/Scripts/Core/GameManager.cs",
+                "Assets/Scripts/Core/BattleRandom.cs"
+            };
 
-            var text = File.ReadAllText(path);
-            Assert.That(text.Contains("\"name\": \"PlayModeTests\""), Is.True);
+            foreach (string file in requiredFiles)
+            {
+                string full = Path.Combine(Root, file);
+                Assert.That(File.Exists(full), Is.True, $"Missing file: {file}");
+            }
         }
     }
 }

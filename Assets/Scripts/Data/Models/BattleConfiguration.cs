@@ -12,8 +12,9 @@ public class BattleConfiguration
     public int defenderUnitBudget;
     public int mapSize;
     public int randomSeed;
+    public Faction? playerSide;
 
-    public static BattleConfiguration Create(FactionDefinition attacker, FactionDefinition defender, CityDefinition location = null)
+    public static BattleConfiguration Create(FactionDefinition attacker, FactionDefinition defender, CityDefinition location = null, Faction? playerSide = null)
     {
         var config = new BattleConfiguration
         {
@@ -21,13 +22,14 @@ public class BattleConfiguration
             defenderFaction = defender,
             battleLocation = location ?? defender?.GetCapital(),
             mapSize = GameConfig.DefaultMapSize,
-            randomSeed = Environment.TickCount
+            randomSeed = Environment.TickCount,
+            playerSide = playerSide
         };
 
         config.primaryTerrain = config.battleLocation?.primaryTerrain ?? attacker?.GetDominantTerrain() ?? TerrainType.Plains;
         config.secondaryTerrain = config.battleLocation?.secondaryTerrain ?? TerrainType.Plains;
-        config.attackerUnitBudget = attacker?.GetBattleUnitBudget() ?? 10;
-        config.defenderUnitBudget = defender?.GetBattleUnitBudget() ?? 10;
+        config.attackerUnitBudget = attacker?.GetBattleUnitBudget() ?? 48;
+        config.defenderUnitBudget = defender?.GetBattleUnitBudget() ?? 48;
 
         return config;
     }

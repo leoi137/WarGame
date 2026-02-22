@@ -1,7 +1,7 @@
 {
   "name": "EditModeTests",
   "rootNamespace": "WorldWars.Tests.EditMode",
-  "references": [],
+  "references": ["Assembly-CSharp"],
   "includePlatforms": ["Editor"],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

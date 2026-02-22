@@ -110,6 +110,11 @@ public class HealthBar : MonoBehaviour
 
     string GetShortName()
     {
+        if (unit.typeDefinition != null && !string.IsNullOrEmpty(unit.typeDefinition.displayName))
+        {
+            string name = unit.typeDefinition.displayName;
+            return name.Length > 8 ? name.Substring(0, 8) : name;
+        }
         switch (unit.unitType)
         {
             case UnitType.Swordsman: return "Huscarl";
@@ -122,6 +127,22 @@ public class HealthBar : MonoBehaviour
 
     Color GetUnitTypeColor()
     {
+        if (unit.typeDefinition != null)
+        {
+            switch (unit.typeDefinition.category)
+            {
+                case UnitCategory.HeavyInfantry: return new Color(0.4f, 0.55f, 0.75f);
+                case UnitCategory.LightInfantry: return new Color(0.3f, 0.8f, 0.5f);
+                case UnitCategory.Ranged: return new Color(1f, 0.75f, 0.2f);
+                case UnitCategory.HeavyCavalry: return new Color(0.9f, 0.75f, 0.2f);
+                case UnitCategory.LightCavalry: return new Color(0.95f, 0.9f, 0.5f);
+                case UnitCategory.Siege: return new Color(0.6f, 0.15f, 0.1f);
+                case UnitCategory.Elephant: return new Color(0.55f, 0.4f, 0.25f);
+                case UnitCategory.Naval: return new Color(0.2f, 0.6f, 0.6f);
+                case UnitCategory.Special: return new Color(0.7f, 0.4f, 0.9f);
+                default: return Color.white;
+            }
+        }
         if (unit.faction == Faction.North)
         {
             switch (unit.unitType)

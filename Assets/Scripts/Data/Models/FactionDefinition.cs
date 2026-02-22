@@ -28,7 +28,7 @@ public class FactionDefinition
 
     public int GetBattleUnitBudget()
     {
-        return Mathf.Clamp(estimatedMilitary / GameConfig.UnitBudgetScaleFactor, 10, GameConfig.MaxUnitsPerSide);
+        return Mathf.Clamp(estimatedMilitary / GameConfig.UnitBudgetScaleFactor, 48, GameConfig.MaxUnitsPerSide);
     }
 
     public CityDefinition GetCapital()

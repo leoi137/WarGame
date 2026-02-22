@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Unit))]
@@ -19,6 +20,9 @@ public class UnitCombat : MonoBehaviour
     // Berserker auto-rage threshold
     float rageHealthThreshold = 0.4f;
     bool autoRageTriggered;
+
+    // Cavalry charge bonus (first hit only per target)
+    bool chargeBonusApplied;
 
     // Archer mark cooldown
     float markCooldown = 6f;
@@ -52,7 +56,12 @@ public class UnitCombat : MonoBehaviour
                 isParrying = false;
         }
 
-        if (unit.unitType == UnitType.Berserker && !autoRageTriggered && !unit.isEnraged)
+        if (unit.typeDefinition != null && !string.IsNullOrEmpty(unit.typeDefinition.abilityId))
+        {
+            List<Unit> nearbyEnemies = GetNearbyEnemies();
+            AbilitySystem.ProcessAbilities(unit, nearbyEnemies, Time.deltaTime);
+        }
+        else if (unit.unitType == UnitType.Berserker && !autoRageTriggered && !unit.isEnraged)
         {
             if (unit.currentHealth / unit.maxHealth <= rageHealthThreshold)
             {
@@ -65,7 +74,10 @@ public class UnitCombat : MonoBehaviour
             currentTarget = null;
 
         if (currentTarget == null)
+        {
             FindNearestEnemy();
+            chargeBonusApplied = false;
+        }
 
         if (currentTarget != null)
         {
@@ -169,6 +181,41 @@ public class UnitCombat : MonoBehaviour
         if (animator != null)
             animator.PlayAttackAnimation();
 
+        if (unit.typeDefinition != null)
+        {
+            UnitCategory cat = unit.typeDefinition.category;
+            switch (cat)
+            {
+                case UnitCategory.HeavyInfantry:
+                case UnitCategory.LightInfantry:
+                case UnitCategory.Special:
+                    AttackMelee(target);
+                    break;
+                case UnitCategory.Ranged:
+                    AttackRanged(target);
+                    break;
+                case UnitCategory.HeavyCavalry:
+                case UnitCategory.LightCavalry:
+                    AttackMelee(target, applyChargeBonus: !chargeBonusApplied);
+                    if (!chargeBonusApplied) chargeBonusApplied = true;
+                    break;
+                case UnitCategory.Siege:
+                    AttackRanged(target);
+                    break;
+                case UnitCategory.Elephant:
+                    AttackMelee(target, applyChargeBonus: false, areaDamage: true);
+                    break;
+                case UnitCategory.Naval:
+                    AttackMelee(target);
+                    break;
+                default:
+                    AttackMelee(target);
+                    break;
+            }
+            AbilitySystem.NotifyAttack(unit, new List<Unit> { target });
+            return;
+        }
+
         switch (unit.unitType)
         {
             case UnitType.Archer:
@@ -186,6 +233,87 @@ public class UnitCombat : MonoBehaviour
         }
     }
 
+    public void AttackMelee(Unit target, bool applyChargeBonus = false, bool areaDamage = false)
+    {
+        float baseDmg = unit.attackDamage;
+        if (applyChargeBonus) baseDmg *= 1.5f;
+        float damage = AbilitySystem.GetModifiedDamage(unit, target, baseDmg);
+        target.TakeDamage(damage);
+        if (areaDamage)
+        {
+            float areaRadius = 2f;
+            float areaDmg = baseDmg * 0.5f;
+            Unit[] allUnits = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+            foreach (Unit other in allUnits)
+            {
+                if (other == target || other.isDead || other.faction == unit.faction) continue;
+                if (Vector3.Distance(transform.position, other.transform.position) <= areaRadius)
+                    other.TakeDamage(AbilitySystem.GetModifiedDamage(unit, other, areaDmg));
+            }
+        }
+    }
+
+    public void AttackRanged(Unit target)
+    {
+        SpawnProjectile(target);
+    }
+
+    void SpawnProjectile(Unit target)
+    {
+        GameObject arrowObj = new GameObject("Projectile");
+        arrowObj.transform.position = transform.position + Vector3.up * 1.5f;
+
+        GameObject shaft = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        shaft.transform.SetParent(arrowObj.transform);
+        shaft.transform.localPosition = Vector3.zero;
+        shaft.transform.localScale = new Vector3(0.025f, 0.2f, 0.025f);
+        shaft.transform.localRotation = Quaternion.Euler(90, 0, 0);
+        Renderer shaftRend = shaft.GetComponent<Renderer>();
+        shaftRend.material = ShaderHelper.WoodMaterial(new Color(0.5f, 0.33f, 0.15f));
+        Destroy(shaft.GetComponent<Collider>());
+
+        GameObject head = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        head.transform.SetParent(arrowObj.transform);
+        head.transform.localPosition = new Vector3(0, 0, 0.22f);
+        head.transform.localScale = new Vector3(0.06f, 0.015f, 0.08f);
+        Renderer headRend = head.GetComponent<Renderer>();
+        headRend.material = ShaderHelper.SteelMaterial(new Color(0.55f, 0.55f, 0.58f));
+        Destroy(head.GetComponent<Collider>());
+
+        GameObject fletch = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        fletch.transform.SetParent(arrowObj.transform);
+        fletch.transform.localPosition = new Vector3(0, 0, -0.18f);
+        fletch.transform.localScale = new Vector3(0.08f, 0.04f, 0.06f);
+        Renderer fletchRend = fletch.GetComponent<Renderer>();
+        fletchRend.material = ShaderHelper.CreateMaterial(new Color(0.8f, 0.2f, 0.15f), 0, 0.1f);
+        Destroy(fletch.GetComponent<Collider>());
+
+        TrailEffect.AttachArrowTrail(arrowObj);
+
+        float damage = AbilitySystem.GetModifiedDamage(unit, target, unit.attackDamage);
+        Projectile proj = arrowObj.AddComponent<Projectile>();
+        proj.damage = damage;
+        proj.target = target;
+        proj.speed = unit.typeDefinition != null && unit.typeDefinition.category == UnitCategory.Siege ? 12f : 18f;
+    }
+
+    List<Unit> GetNearbyEnemies()
+    {
+        float detectionRange = unit.attackRange * 2f;
+        if (detectionRange < 10f) detectionRange = 10f;
+        if (unit.isEnraged) detectionRange *= 1.5f;
+
+        List<Unit> result = new List<Unit>();
+        Unit[] allUnits = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+        foreach (Unit other in allUnits)
+        {
+            if (other.isDead || other.faction == unit.faction) continue;
+            if (Vector3.Distance(transform.position, other.transform.position) <= detectionRange)
+                result.Add(other);
+        }
+        return result;
+    }
+
     void AttackAsArcher(Unit target)
     {
         SpawnArrow(target);
@@ -196,6 +324,7 @@ public class UnitCombat : MonoBehaviour
             markTimer = markCooldown;
             hasMarkedTarget = true;
         }
+        AbilitySystem.NotifyAttack(unit, new List<Unit> { target });
     }
 
     void AttackAsSwordsman(Unit target)
@@ -206,6 +335,7 @@ public class UnitCombat : MonoBehaviour
         float damage = unit.attackDamage;
         target.TakeDamage(damage);
         SpawnSwordSlashEffect(target.transform.position);
+        AbilitySystem.NotifyAttack(unit, new List<Unit> { target });
     }
 
     void AttackAsBerserker(Unit target)
@@ -229,6 +359,7 @@ public class UnitCombat : MonoBehaviour
             if (targetAgent != null)
                 targetAgent.speed *= 0.7f;
         }
+        AbilitySystem.NotifyAttack(unit, new List<Unit> { target });
     }
 
     void AttackAsShieldbearer(Unit target)
@@ -246,6 +377,7 @@ public class UnitCombat : MonoBehaviour
 
         SpawnShieldBashEffect(target.transform.position);
         CameraShake.Shake(0.06f, 0.15f);
+        AbilitySystem.NotifyAttack(unit, new List<Unit> { target });
     }
 
     void ActivateParry()

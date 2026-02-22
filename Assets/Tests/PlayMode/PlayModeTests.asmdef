@@ -1,7 +1,7 @@
 {
   "name": "PlayModeTests",
   "rootNamespace": "WorldWars.Tests.PlayMode",
-  "references": ["UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "references": ["Assembly-CSharp", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
   "includePlatforms": [],
   "excludePlatforms": [],
   "allowUnsafeCode": false,

@@ -76,3 +76,12 @@ public enum Faction
     North,
     South
 }
+
+public enum FormationType
+{
+    Line,
+    Column,
+    Wedge,
+    Square,
+    Spread
+}
