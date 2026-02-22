@@ -21,6 +21,18 @@ This is the **linear execution guide**. Work through each phase in order. Each p
 5. **Tests** — Test names with 5-10 word behavior summaries
 6. **Checklist** — Markable items to track completion
 
+### Checklist Execution Rules (Required)
+
+The checklist is the **source of truth for progress tracking**. It is not optional.
+
+1. Start each phase by reviewing its checklist before coding.
+2. Keep all items as `- [ ]` until the work is actually completed and verified.
+3. Immediately change an item to `- [x]` once that item is done (do not batch-update later).
+4. Never mark an item complete "in advance" based on intent.
+5. If new required work appears, add a new unchecked checklist item in that phase.
+6. A phase is complete only when every required checklist item is marked `- [x]`.
+7. Treat checklist updates as part of the task itself; implementation without checklist updates is incomplete.
+
 **Supporting Documents:**
 - `architecture.md` — Complete file structure, data models, system diagrams
 - `faction-data.md` — All 43 factions with units, cities, terrain (implementation-ready data)
@@ -38,16 +50,16 @@ The game transforms from a single-battlefield Viking RTS into a **WC4-style glob
 
 ### Quick Battle Mode
 1. **World Map** → Browse 43 historical factions across the globe
-2. **Faction Select** → Pick two factions to pit against each other
-3. **Battle Setup** → Place units on a terrain-specific battlefield (both sides)
-4. **Simulate** → Press play; identical AI controls both armies
+2. **Faction Select** → Pick YOUR faction first (this is the one you'll control), then pick the opponent
+3. **Battle Setup** → Your army spawns on your half of a terrain-specific battlefield. Drag-select units, reposition with right-click, rotate formations with R, use F1-F5 for preset formations (Line, Column, Wedge, Square, Spread). The opponent's army is auto-placed by AI on the other half. Army sizes are proportional to historical military (48–800 units per side).
+4. **Simulate** → Press Confirm; identical AI controls both armies during combat
 5. **Results** → Winner determined by strategy (composition, positioning, terrain)
 
 ### Campaign Conquest Mode
 1. **Campaign Setup** → Pick your faction from the world map
 2. **Campaign Map** → View your provinces, armies, income, adjacency
 3. **Plan Turn** → Select a province to attack (or recruit, reinforce, defend)
-4. **Battle** → Player-controlled battles use interactive setup + simulation; AI-vs-AI battles auto-resolve
+4. **Battle** → Player-initiated battles open the interactive placement screen: position YOUR army with drag-and-drop controls on your half of the battlefield, then watch both AIs fight. AI-vs-AI battles auto-resolve with simplified math.
 5. **Post-Battle** → Provinces change hands, income collected, units recruited
 6. **Victory** → Conquer the map (or X% threshold) across multiple turns/years
 
@@ -55,9 +67,12 @@ The existing combat engine (Unit, UnitCombat, UnitMovement, Projectile, etc.) is
 
 **Key principles:**
 - Strategy is in the setup, execution is automated and equal
+- **Player places their own faction's units** before each battle using drag-and-drop, formations, and rotation; the opponent is auto-placed by the AI
+- **20× unit scale**: armies range from 48 to 800 units (based on historical military size), enabling massive battles where army size truly matters
 - Campaign supports multi-battle conquest over time
 - Architecture is Supabase-ready for future backend persistence (interfaces now, swap implementation later)
 - All save/load operations go through `IPersistenceService`
+- **Performance at scale**: LOD system, spatial partitioning, GPU instancing, and flocking-based movement ensure 30+ FPS at 400 units and 15+ FPS at 1600 units
 
 ---
 
@@ -189,9 +204,11 @@ Assets/
       Unit.cs                     (MODIFY) Refactor to data-driven generic unit
       UnitFactory.cs              (NEW) Creates units from UnitTypeDefinition
       UnitModelBuilder.cs         (NEW) Extracted from Unit.cs — procedural model builder
-      UnitMovement.cs             (KEEP) Minor updates for terrain speed modifiers
+      UnitMovement.cs             (MODIFY) Terrain speed + flocking mode for large battles
       UnitCombat.cs               (MODIFY) Generalize for any unit type and ability
       UnitAnimator.cs             (MODIFY) Support new weapon/armor styles via config
+      UnitLODSystem.cs            (NEW) 4-level LOD system for 20× unit scale
+      SpatialGrid.cs              (NEW) Cell-based spatial partitioning for O(1) queries
       HealthBar.cs                (KEEP) Minor updates for new unit names
       Projectile.cs               (KEEP) Already generic enough
       AbilitySystem.cs            (NEW) Generic ability trigger and effect processor
@@ -276,11 +293,11 @@ Assets/
 ```
 
 **File Count:**
-- New files: ~80 (includes Campaign/, persistence, campaign UI, BattleRandom)
+- New files: ~82 (includes Campaign/, persistence, campaign UI, BattleRandom, UnitLODSystem, SpatialGrid)
 - Modified files: ~15
 - Kept as-is: ~7
 - Test files: ~15
-- **Total: ~117 files**
+- **Total: ~119 files**
 
 ---
 
@@ -353,18 +370,18 @@ Create assembly definitions for test isolation:
 
 ### Tests
 
-- [ ] `Test_ProjectCompilesAfterRestructure` — Zero compile errors after creating directories and assembly definitions
-- [ ] `Test_EditModeAssemblyExists` — EditModeTests.asmdef exists at Assets/Tests/EditMode/ and references correct assemblies
-- [ ] `Test_PlayModeAssemblyExists` — PlayModeTests.asmdef exists at Assets/Tests/PlayMode/ and references correct assemblies
+- [x] `Test_ProjectCompilesAfterRestructure` — Zero compile errors after creating directories and assembly definitions
+- [x] `Test_EditModeAssemblyExists` — EditModeTests.asmdef exists at Assets/Tests/EditMode/ and references correct assemblies
+- [x] `Test_PlayModeAssemblyExists` — PlayModeTests.asmdef exists at Assets/Tests/PlayMode/ and references correct assemblies
 
 ### Checklist
 
 - [x] Create all 18 directories listed above (Core, Data/Models, Data/Databases, Data/Factions, WorldMap, Battle, Units, AI, Terrain, UI, VFX, Rendering, Campaign, Editor, Tests, Tests/EditMode, Tests/PlayMode)
 - [x] Create `Assets/Tests/EditMode/EditModeTests.asmdef` with Editor platform and NUnit references
 - [x] Create `Assets/Tests/PlayMode/PlayModeTests.asmdef` with NUnit and TestRunner references
-- [ ] Verify project compiles with zero errors after restructure
-- [ ] Run existing Viking battle scene and confirm units spawn, fight, and die correctly (no regressions)
-- [ ] All Phase 0 tests written and passing
+- [x] Verify project compiles with zero errors after restructure
+- [x] Run existing Viking battle scene and confirm units spawn, fight, and die correctly (no regressions)
+- [x] All Phase 0 tests written and passing
 - [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 0: Project restructure — directories, assembly definitions, compile verified"`
 
 ---
@@ -397,6 +414,7 @@ All shared enumerations used across the project:
 - `enum Region { Europe, MiddleEast, SouthAsia, EastAsia, SoutheastAsia, Africa, Americas, Oceania }` — Geographic region grouping.
 - `enum AbilityTrigger { OnLowHP, OnNearEnemy, OnCooldown, OnKill, Passive, OnAttack }` — When abilities activate.
 - `enum Faction { Attacker, Defender }` — Replaces old North/South. Two sides of any battle.
+- `enum FormationType { Line, Column, Wedge, Square, Spread }` — Player-selectable formation presets for the BattleSetup placement phase.
 
 #### `Assets/Scripts/Core/EventBus.cs` (NEW)
 
@@ -431,18 +449,24 @@ Event types (defined as structs in EventBus.cs or a separate Events.cs):
 
 Global configuration constants. All values as `public static` fields for easy tuning:
 
-- `static int DefaultMapSize = 120` — Battle map dimensions.
+- `static int DefaultMapSize = 300` — Battle map dimensions (increased from 120 to accommodate 20× larger armies).
 - `static float SimulationTickRate = 0.05f` — AI decision interval during simulation.
 - `static float DefaultBattleSpeed = 1.0f` — Time scale for simulation.
 - `static float MaxBattleSpeed = 4.0f` — Maximum fast-forward speed.
 - `static float PlacementZoneDepth = 0.35f` — Fraction of map available for unit placement per side.
-- `static int MaxUnitsPerSide = 40` — Unit cap per army in a battle.
-- `static float BaseDetectionRange = 12f` — Default enemy detection range.
+- `static int MaxUnitsPerSide = 800` — Unit cap per army in a battle (20× previous cap of 40; enables army sizes proportional to each faction's historical military).
+- `static float BaseDetectionRange = 18f` — Default enemy detection range (increased to suit larger battlefields).
 - `static float WorldMapWidth = 200f` — World map X dimension.
 - `static float WorldMapHeight = 100f` — World map Z dimension.
-- `static int UnitBudgetScaleFactor = 5000` — Divide faction military estimate by this for battle unit count.
+- `static int UnitBudgetScaleFactor = 250` — Divide faction military estimate by this for battle unit count (20× more granular than previous 5000; yields 48–800 units per side depending on faction).
 - `static float TerrainHeightScale = 4f` — Max terrain elevation.
 - `static float CountdownDuration = 3f` — Pre-simulation countdown seconds.
+- `static int FlockingThreshold = 200` — If units per side exceed this, use flocking instead of NavMeshAgent.
+- `static int MaxFullLODUnits = 80` — Maximum units rendered at full LOD detail.
+- `static float LODFullDistance = 60f` — Below this distance from camera: full detail.
+- `static float LODSimplifiedDistance = 120f` — Below this: simplified 3-mesh model.
+- `static float LODBillboardDistance = 200f` — Below this: billboard quad. Beyond this: culled.
+- `static float SpatialGridCellSize = 10f` — Cell size for spatial partitioning grid.
 
 #### `Assets/Scripts/Core/BattleRandom.cs` (NEW)
 
@@ -506,9 +530,9 @@ Top-level state machine replacing GameBootstrap as the primary entry point:
 
 ### Checklist
 
-- [x] `Enums.cs` created with all 12 enumerations (GameFlowState with 12 values, BattlePhase, TerrainType with 10, UnitCategory with 9, ArmorStyle, HelmetStyle, WeaponStyle, ShieldStyle, MaterialPreset, Region, AbilityTrigger, Faction)
+- [x] `Enums.cs` created with all 13 enumerations (GameFlowState with 12 values, BattlePhase, TerrainType with 10, UnitCategory with 9, ArmorStyle, HelmetStyle, WeaponStyle, ShieldStyle, MaterialPreset, Region, AbilityTrigger, Faction, FormationType with 5 values)
 - [x] `EventBus.cs` created with Subscribe/Unsubscribe/Publish/Clear and all 19 event structs (10 base + 9 campaign)
-- [x] `GameConfig.cs` created with all 12 static constants (DefaultMapSize, SimulationTickRate, DefaultBattleSpeed, MaxBattleSpeed, PlacementZoneDepth, MaxUnitsPerSide, BaseDetectionRange, WorldMapWidth, WorldMapHeight, UnitBudgetScaleFactor, TerrainHeightScale, CountdownDuration)
+- [x] `GameConfig.cs` created with all 18 static constants (DefaultMapSize=300, SimulationTickRate, DefaultBattleSpeed, MaxBattleSpeed, PlacementZoneDepth, MaxUnitsPerSide=800, BaseDetectionRange=18, WorldMapWidth, WorldMapHeight, UnitBudgetScaleFactor=250, TerrainHeightScale, CountdownDuration, FlockingThreshold=200, MaxFullLODUnits=80, LODFullDistance=60, LODSimplifiedDistance=120, LODBillboardDistance=200, SpatialGridCellSize=10)
 - [x] `GameManager.cs` created with singleton, state machine, TransitionTo, StartQuickBattle, EndBattle, ReturnToWorldMap, ReturnToMainMenu
 - [x] `BattleRandom.cs` created wrapping System.Random with Range(float), Range(int), Chance(float), Value
 - [ ] All Phase 1 tests written and passing (16 tests total)
@@ -554,7 +578,7 @@ public class FactionDefinition
 - `Dictionary<TerrainType, float> terrainDistribution` — Terrain % breakdown (sums to ~100).
 - `List<CityDefinition> cities` — All cities in this faction.
 - `List<UnitTypeDefinition> unitTypes` — All unit types available to this faction (4-8).
-- `int GetBattleUnitBudget()` — Returns estimatedMilitary / GameConfig.UnitBudgetScaleFactor, clamped to 10-40.
+- `int GetBattleUnitBudget()` — Returns estimatedMilitary / GameConfig.UnitBudgetScaleFactor, clamped to 48-800. With ScaleFactor=250 this yields ~48 (Tu'i Tonga, 12K) to 800 (Song, 900K) units, making army size directly reflect each faction's historical military strength.
 - `CityDefinition GetCapital()` — Returns the city matching capitalCityId.
 - `TerrainType GetDominantTerrain()` — Returns the terrain type with the highest distribution %.
 
@@ -819,7 +843,7 @@ Returns `List<FactionDefinition>` for 11 European factions:
 - [ ] `Test_AmbushHasForestTerrainCondition` — ambush ability's terrainCondition includes Forest and Jungle
 
 **Data model tests:**
-- [ ] `Test_GetBattleUnitBudgetClampedTo10And40` — GetBattleUnitBudget returns value between 10-40 for any valid estimatedMilitary
+- [ ] `Test_GetBattleUnitBudgetClampedTo48And800` — GetBattleUnitBudget returns value between 48-800 for any valid estimatedMilitary
 - [ ] `Test_GetCapitalReturnsMatchingCity` — GetCapital returns the city whose ID matches capitalCityId
 - [ ] `Test_GetDominantTerrainReturnsHighest` — GetDominantTerrain returns the TerrainType with the largest distribution %
 - [ ] `Test_BattleConfigurationStoresFactionData` — BattleConfiguration correctly stores attacker and defender factions
@@ -1113,7 +1137,37 @@ Support new weapon and armor styles:
 #### `Assets/Scripts/Units/UnitMovement.cs` (MODIFY)
 
 - **Add:** Terrain speed modifier integration: `agent.speed = unit.moveSpeed * TerrainEffects.GetMovementMultiplier(transform.position, unit.typeDefinition.category)`.
-- **Keep:** All existing movement logic.
+- **Modify:** For battles > 200 units/side, disable NavMeshAgent and use lightweight flocking/steering (Boids-like) for movement. The `UseFlocking` flag is set by BattleManager based on army size.
+- **Add:** `bool UseFlocking` — When true, skips NavMeshAgent and uses simple steering (seek target, avoid allies, maintain formation).
+- **Keep:** All existing movement logic (used for smaller battles ≤ 200 units/side).
+
+#### `Assets/Scripts/Units/UnitLODSystem.cs` (NEW)
+
+Level-of-detail system to handle 20× unit counts without killing frame rate:
+
+- `static void Initialize()` — Sets up LOD distance thresholds and culling.
+- `static void UpdateLOD(List<Unit> allUnits, Vector3 cameraPos)` — Called once per frame; iterates all units and adjusts their visual detail level.
+- `enum LODLevel { Full, Simplified, Billboard, Culled }` — 4 detail levels.
+- `static void SetLODLevel(Unit unit, LODLevel level)` — Switches the unit's visual representation:
+  - **Full** (< 60m): All mesh parts, health bar, weapon trail, normal maps. Used for ≤ ~80 nearest units.
+  - **Simplified** (60-120m): 3-mesh model (body + weapon + head), no normal maps, no health bar, no trail.
+  - **Billboard** (120-200m): Single textured quad facing camera, colored by faction. Extremely cheap.
+  - **Culled** (> 200m): Renderer disabled, only logic runs.
+- `static float[] LODDistances = { 60f, 120f, 200f }` — Configurable thresholds.
+- `static int MaxFullLOD = 80` — Hard cap on Full-detail units regardless of distance.
+
+#### `Assets/Scripts/Units/SpatialGrid.cs` (NEW)
+
+Spatial partitioning for efficient nearest-enemy queries at 20× scale:
+
+- `SpatialGrid(float cellSize, int gridWidth, int gridHeight)` — Constructor. cellSize ~10 units.
+- `void Clear()` — Reset grid for new frame.
+- `void Insert(Unit unit)` — Place unit in its grid cell.
+- `List<Unit> GetNearby(Vector3 position, float radius)` — Returns all units within radius using cell lookup. O(1) per query instead of O(n).
+- `Unit GetNearest(Vector3 position, Faction targetFaction, float maxRange)` — Fast nearest-enemy lookup.
+- `int CountInRadius(Vector3 position, float radius, Faction? factionFilter = null)` — Count units in area.
+
+This replaces the O(n²) `FindNearestEnemy` loops in AI and combat systems.
 
 ### Tests
 
@@ -1147,6 +1201,14 @@ Support new weapon and armor styles:
 - [ ] `Test_TerrainSpeedModifierApplied` — Unit on Forest terrain has effective speed < base moveSpeed
 - [ ] `Test_UnitDiesAtZeroHP` — Unit with HP reduced to 0 triggers Die() and is no longer alive
 
+**LOD and performance tests:**
+- [ ] `Test_LODFullWithin60m` — Unit within 60m of camera has LODLevel.Full
+- [ ] `Test_LODSimplifiedBeyond60m` — Unit between 60-120m has LODLevel.Simplified (3 mesh renderers max)
+- [ ] `Test_LODBillboardBeyond120m` — Unit between 120-200m has LODLevel.Billboard (1 quad renderer)
+- [ ] `Test_LODCulledBeyond200m` — Unit beyond 200m has all renderers disabled
+- [ ] `Test_SpatialGridGetNearestIsCorrect` — GetNearest returns the actually closest unit within maxRange
+- [ ] `Test_SpatialGridPerformanceWith1600Units` — Inserting 1600 units and calling GetNearest 1600 times completes in < 5ms total
+
 ### Checklist
 
 - [ ] `UnitModelBuilder.cs` extracted from Unit.cs with BuildModel, BuildSkeleton (14 pivots), BuildBody, BuildArmor (6 styles), BuildHelmet (10 styles), BuildWeapon (14 styles), BuildSecondaryWeapon, BuildAccessories, BuildLegacyViking
@@ -1156,9 +1218,11 @@ Support new weapon and armor styles:
 - [ ] `UnitCombat.cs` refactored: removed per-type attack methods; added generic AttackMelee, AttackRanged; delegates to AbilitySystem for modifier calculations
 - [ ] `UnitAnimator.cs` updated with SetAnimationProfile, plus per-weapon animations (AnimateSwordSwing, AnimateAxeSwing, AnimateSpearThrust, AnimateBowShot, AnimateClubSwing, AnimateJavelinThrow)
 - [ ] `HealthBar.cs` updated: GetShortName reads from typeDefinition.displayName, GetUnitTypeColor based on UnitCategory
-- [ ] `UnitMovement.cs` updated: speed = unit.moveSpeed × TerrainEffects.GetMovementMultiplier(position, category)
+- [ ] `UnitMovement.cs` updated: speed = unit.moveSpeed × TerrainEffects.GetMovementMultiplier(position, category); UseFlocking mode for battles > 200 units/side (Boids-like steering replaces NavMeshAgent)
+- [ ] `UnitLODSystem.cs` created with 4 LOD levels (Full/Simplified/Billboard/Culled), distance thresholds (60/120/200m), MaxFullLOD=80, UpdateLOD called per frame
+- [ ] `SpatialGrid.cs` created with cell-based spatial partitioning (cellSize=10), Insert, GetNearby, GetNearest, CountInRadius for O(1) neighbor queries
 - [ ] Legacy Viking models preserved: North Sea Empire Huscarl/Hunter/Berserker/Shieldbearer produce same pivot layout, mesh count, and weapon types as current game
-- [ ] All Phase 4 tests written and passing (20 tests total)
+- [ ] All Phase 4 tests written and passing (26 tests total)
 - [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 4: Unit system refactor — data-driven UnitFactory, UnitModelBuilder, AbilitySystem with conditions"`
 
 ---
@@ -1227,13 +1291,18 @@ Optimal target selection per unit type:
 
 #### `Assets/Scripts/AI/FormationController.cs` (NEW)
 
-Arranges units in tactically sound formations:
+Arranges units in tactically sound formations. Supports both AI auto-formation and player-selected presets.
 
+- `enum FormationType { Line, Column, Wedge, Square, Spread }` — Player-selectable formation shapes.
 - `static void ArrangeFormation(List<Unit> units, Vector3 center, Vector3 facing, float spacing)` — Positions all units in formation.
 - `static void ArrangeByCategory(List<Unit> units, Vector3 center, Vector3 facing)` — Auto-formation: shields front, infantry mid, cavalry flanks, ranged back.
-- `static Vector3[] GetFormationPositions(int count, Vector3 center, Vector3 facing, float spacing)` — Calculate positions for N units.
+- `static void ArrangeInFormation(List<Unit> units, Vector3 center, Vector3 facing, FormationType type, float spacing = 2.0f)` — Arranges units in the specified player-selected formation shape.
+- `static Vector3[] GetFormationPositions(int count, Vector3 center, Vector3 facing, float spacing)` — Calculate positions for N units in a line.
+- `static Vector3[] GetFormationPositions(int count, Vector3 center, Vector3 facing, FormationType type, float spacing)` — Calculate positions for N units in any formation shape.
 - `static bool IsFormationIntact(List<Unit> units, float maxDeviation)` — Whether units are still in formation.
 - `static void ReformFormation(List<Unit> units, Vector3 center)` — Order scattered units to reform.
+- `static void RotateFormation(List<Unit> units, Vector3 center, float degrees)` — Rotates the formation around a center point by the given degrees. Used by the player's R-key rotation during BattleSetup.
+- `static Vector3[] GetGhostPositions(List<Unit> units, Vector3 newCenter)` — Returns predicted positions if the group were moved to a new center (for ghost preview during drag).
 
 #### `Assets/Scripts/AI/TerrainAnalyzer.cs` (NEW)
 
@@ -1283,7 +1352,7 @@ Evaluates terrain for tactical positioning:
 - [ ] `SimulationAI.cs` created with side-agnostic decision loop, per-category handlers (HandleHeavyInfantry, HandleLightInfantry, HandleHeavyCavalry, HandleLightCavalry, HandleRanged, HandleSiege, HandleElephant, HandleNaval, HandleSpecial), EvaluateArmyStrength, ShouldRetreat, ShouldAdvance
 - [ ] `TacticalDecisionMaker.cs` created with EvaluateStance, GetAdvanceTarget, GetFlankPosition, GetRetreatPosition, ShouldFocusFire, CalculateStrengthRatio
 - [ ] `TargetSelector.cs` created with SelectTarget, FindNearestEnemy, FindWeakestEnemy, FindHighestThreat, FindOptimalRangedTarget, FindCavalryChargeTarget, ScoreTarget, GetTypeMatchupBonus
-- [ ] `FormationController.cs` created with ArrangeFormation, ArrangeByCategory, GetFormationPositions, IsFormationIntact, ReformFormation
+- [ ] `FormationController.cs` created with FormationType enum (Line/Column/Wedge/Square/Spread), ArrangeFormation, ArrangeByCategory, ArrangeInFormation (player presets), GetFormationPositions (both overloads), IsFormationIntact, ReformFormation, RotateFormation, GetGhostPositions
 - [ ] `TerrainAnalyzer.cs` created with FindBestDefensivePosition, FindBestRangedPosition, HasTerrainAdvantage, EvaluatePositionScore, FindChokePoints, FindForestCover
 - [ ] Both attacker and defender use same SimulationAI class, confirmed by code inspection (no Faction-specific branching in decision logic)
 - [ ] All Phase 5 tests written and passing (18 tests total)
@@ -1442,9 +1511,10 @@ Master controller for the battle scene:
 - `List<Unit> defenderUnits` — All defender units.
 - `SimulationAI attackerAI` — AI for attacker side.
 - `SimulationAI defenderAI` — AI for defender side.
-- `void Initialize(BattleConfiguration config)` — Sets up the battle: generate terrain, create UI, enter Placement phase.
-- `void StartPlacement()` — Enter placement phase with both armies.
-- `void ConfirmPlacement()` — Lock in positions and start countdown.
+- `Faction PlayerSide` — Which side the player is playing as (null for pure AI-vs-AI spectator mode).
+- `void Initialize(BattleConfiguration config, Faction? playerSide = null)` — Sets up the battle: generate terrain, create UI, enter Placement phase. If playerSide is set, that side gets interactive placement; the other side is auto-placed. If null (spectator/campaign auto-resolve), both sides auto-place.
+- `void StartPlacement()` — Enter placement phase. Auto-places the opponent immediately; gives the player interactive control of their side.
+- `void ConfirmPlacement()` — Lock in player positions and start countdown.
 - `void StartSimulation()` — Activate both AIs, enter Simulating phase.
 - `void PauseSimulation()` — Pause time.
 - `void ResumeSimulation()` — Resume time.
@@ -1456,24 +1526,45 @@ Master controller for the battle scene:
 
 #### `Assets/Scripts/Battle/BattleSetup.cs` (NEW)
 
-Pre-battle unit placement system:
+Interactive pre-battle unit placement system. The **player's faction** gets full drag-and-drop control; the opponent's faction is auto-placed by the AI.
 
-- `void Initialize(BattleConfiguration config)` — Creates placement zones and spawns unit palettes.
-- `void SpawnPlacementUnits(FactionDefinition faction, Faction side)` — Creates draggable unit representations.
-- `void CreatePlacementZone(Faction side, int mapSize)` — Visual indicator of valid placement area.
-- `void HandleDragAndDrop()` — Input handling for placing units.
+- `void Initialize(BattleConfiguration config, Faction playerSide)` — Creates placement zones, spawns the player's unit roster as selectable/draggable groups, and auto-places the opponent's army.
+- `Faction PlayerSide` — Which side the player controls for placement (the other side is AI-placed).
+- `void SpawnPlayerPlacementRoster(FactionDefinition faction, Faction side)` — Creates the player's units as draggable formation groups on the battlefield. Units spawn in a default formation that the player can rearrange.
+- `void AutoPlaceOpponent(FactionDefinition faction, Faction side)` — Instantly places the opponent's full army using FormationController.ArrangeByCategory. Opponent units are visible but non-interactable during placement.
+- `void CreatePlacementZone(Faction side, int mapSize)` — Visual indicator of valid placement area (colored translucent overlay on the player's half).
+- `void HandleSelection()` — Input: left-click to select a single unit; Shift+click to add to selection; drag-box to select multiple units.
+- `void HandleDragMove()` — Input: right-click with selected units to move them as a group to a new position within the valid zone. Formation shape is preserved during the move.
+- `void HandleRotation()` — Input: R key or middle-mouse-drag to rotate the selected formation around its center.
 - `bool IsValidPlacement(Vector3 position, Faction side)` — Check if position is within valid zone.
-- `void ConfirmAttackerPlacement()` — Lock attacker positions.
-- `void ConfirmDefenderPlacement()` — Lock defender positions.
-- `void AutoPlaceUnits(FactionDefinition faction, Faction side)` — AI-assisted auto-placement using FormationController.
+- `void SelectAllOfType(UnitCategory category)` — Double-click or hotkey (1-9) to select all units of a specific type.
+- `void SetFormation(FormationType formation)` — Hotkeys (F1-F5) to set selected units into preset formations: Line, Column, Wedge, Square, Spread.
+- `void ConfirmPlacement()` — Lock player positions and start countdown. Only the player needs to confirm (opponent is already placed).
+- `void AutoPlacePlayerUnits()` — "Auto-Place" button uses FormationController.ArrangeByCategory as a starting point the player can then adjust.
 - `List<Unit> GetPlacedUnits(Faction side)` — Returns all placed units for a side.
+- `void HighlightHoveredUnit(Unit unit)` — Shows tooltip with unit type, HP, ATK when hovering over a unit during placement.
+- `void ShowFormationGhost(List<Unit> selected, Vector3 target)` — While right-click-dragging, shows ghost outlines of where units will move to.
 
-Placement rules:
-- Map divided into attacker half (left/north) and defender half (right/south).
-- Each side can only place units in their zone (0 to 35% of map depth).
-- Units can be dragged from a palette and dropped onto the terrain.
-- "Auto-Place" button uses FormationController.ArrangeByCategory.
-- Both sides must confirm placement before simulation starts.
+**Placement rules:**
+- Map divided into attacker half and defender half.
+- The player's side gets the full placement zone (0 to 35% of map depth).
+- The opponent's side is auto-placed by AI and not modifiable.
+- Player can drag-select, reposition, rotate, and reform their units.
+- Units maintain minimum spacing (1.5 units apart) to prevent stacking.
+- Formation presets: Line (default), Column, Wedge, Square, Spread.
+- "Auto-Place" button available for quick defaults.
+- Confirm button starts the battle.
+
+**Selection UX (matches RTS conventions):**
+- Left-click: select single unit
+- Shift+click: add to selection
+- Drag-box: select all units in rectangle
+- Double-click unit: select all of same type
+- Ctrl+A: select all units
+- Right-click: move selected units to position
+- R / middle-drag: rotate formation
+- F1-F5: formation presets
+- Number keys 1-9: quick-select by unit category
 
 #### `Assets/Scripts/Battle/BattleSimulator.cs` (NEW)
 
@@ -1534,6 +1625,14 @@ Post-battle statistics and outcome display:
 - [ ] `Test_PlacementZoneConstrainsUnits` — IsValidPlacement returns false for positions outside the faction's 35% zone
 - [ ] `Test_PlacementZoneAcceptsValidPosition` — IsValidPlacement returns true for positions inside the faction's 35% zone
 - [ ] `Test_AutoPlaceCreatesValidFormation` — AutoPlaceUnits places all units within the valid zone, count matches unit budget
+- [ ] `Test_OpponentAutoPlacedOnInit` — After Initialize, opponent side has all units placed with positions within their zone
+- [ ] `Test_PlayerCanSelectAndMoveUnits` — Selected units respond to right-click move within valid zone
+- [ ] `Test_FormationPresetsArrangeCorrectly` — SetFormation(Line) arranges units in a line; SetFormation(Wedge) arranges in V shape
+- [ ] `Test_UnitMinimumSpacingEnforced` — After any move, no two units are closer than 1.5 units apart
+- [ ] `Test_RotationPreservesFormationShape` — HandleRotation rotates the selection around its center without changing relative positions
+- [ ] `Test_DragBoxSelectsMultipleUnits` — Drawing a selection rectangle selects all player units within the box
+- [ ] `Test_DoubleClickSelectsAllOfType` — Double-clicking a Swordsman selects all Swordsmen on the player's side
+- [ ] `Test_LargeArmyPlacement800Units` — 800 units placed without errors and within performance budget (< 2s placement time)
 
 **BattleResult tests:**
 - [ ] `Test_BattleResultHasCorrectWinner` — Winner factionId matches the side with surviving units
@@ -1553,8 +1652,8 @@ Post-battle statistics and outcome display:
 
 ### Checklist
 
-- [ ] `BattleManager.cs` created with Initialize, StartPlacement, ConfirmPlacement, StartSimulation, PauseSimulation, ResumeSimulation, SetSimulationSpeed, CheckBattleEnd, EndBattle, Cleanup, CalculateResult
-- [ ] `BattleSetup.cs` created with Initialize, SpawnPlacementUnits, CreatePlacementZone, HandleDragAndDrop, IsValidPlacement, ConfirmAttackerPlacement, ConfirmDefenderPlacement, AutoPlaceUnits, GetPlacedUnits
+- [ ] `BattleManager.cs` created with Initialize(config, playerSide), PlayerSide, StartPlacement (auto-places opponent, interactive for player), ConfirmPlacement, StartSimulation, PauseSimulation, ResumeSimulation, SetSimulationSpeed, CheckBattleEnd, EndBattle, Cleanup, CalculateResult
+- [ ] `BattleSetup.cs` created with Initialize(config, playerSide), SpawnPlayerPlacementRoster (draggable units), AutoPlaceOpponent, CreatePlacementZone, HandleSelection (click/shift/drag-box/double-click), HandleDragMove (right-click group move), HandleRotation (R/middle-drag), SelectAllOfType, SetFormation (Line/Column/Wedge/Square/Spread), ConfirmPlacement (player only), AutoPlacePlayerUnits, ShowFormationGhost, HighlightHoveredUnit
 - [ ] `BattleSimulator.cs` created with Start, Update, Pause, Resume, IsBattleOver, GetWinner, ProcessFrame
 - [ ] `BattleCamera.cs` created with Initialize, SetAutoFollow, Update (smooth follow), GetCombatCenter, HandleManualInput, FocusOnUnit, GetOptimalZoom
 - [ ] `BattleTimeController.cs` created with Play, Pause, SetSpeed (clamped to MaxBattleSpeed), TogglePause
@@ -1619,16 +1718,22 @@ Faction picker for Quick Battle mode:
 
 #### `Assets/Scripts/UI/BattleSetupUI.cs` (NEW)
 
-UI for the unit placement phase:
+UI for the interactive unit placement phase. The player controls their own faction's placement; the opponent is auto-placed.
 
-- `void Show(BattleConfiguration config)` — Creates placement UI overlay.
+- `void Show(BattleConfiguration config, Faction playerSide)` — Creates placement UI overlay with army roster, formation toolbar, and minimap.
 - `void Hide()` — Destroys placement UI.
-- `void CreateUnitPalette(FactionDefinition faction, Faction side)` — Draggable unit icons for placement.
-- `void CreatePlacementControls()` — Auto-place button, confirm button, clear button.
-- `void UpdatePlacementCount(Faction side, int placed, int max)` — Shows "12/20 units placed".
+- `void CreateArmyRoster(FactionDefinition faction)` — Left-side panel showing the player's unit composition grouped by category (e.g., "Heavy Infantry: 45 Huscarls, 30 Men-at-Arms"). Each group is clickable to select all of that type on the battlefield.
+- `void CreateFormationToolbar()` — Horizontal bar with 5 formation preset buttons (Line, Column, Wedge, Square, Spread) + hotkey labels (F1-F5). Active formation is highlighted.
+- `void CreatePlacementControls()` — Auto-place button, Confirm button. No clear button needed — player adjusts positions, not spawns.
+- `void CreateSelectionInfo()` — Bottom bar showing currently selected units: count, types, average HP/ATK. Updates in real-time as selection changes.
+- `void UpdateArmyCount(int total, int placed)` — Shows "192 / 192 units deployed" (all units are always deployed; count confirms nothing is missing).
 - `void ShowTerrainInfo(TerrainType terrain)` — Displays terrain bonuses for the battlefield.
-- `void OnConfirmPlacement(Faction side)` — Confirms placement for one side.
-- `void OnAutoPlace(Faction side)` — Auto-places remaining units.
+- `void ShowOpponentPreview(FactionDefinition opponent)` — Right-side panel showing opponent's army composition (read-only). Lets the player see what they're up against before positioning.
+- `void CreatePlacementMinimap(int mapSize)` — Small minimap showing unit dots for both sides. Player units in faction color, opponent units in their color. Updates as player moves units.
+- `void ShowHotkeyGuide()` — Collapsible panel with keyboard shortcuts (selection, formation, rotation).
+- `void OnConfirmPlacement()` — Confirms player placement and starts countdown.
+- `void OnAutoPlace()` — Auto-places player's units using formation AI.
+- `void OnFormationSelected(FormationType formation)` — Applies formation to selected units.
 
 #### `Assets/Scripts/UI/BattleHUD.cs` (NEW)
 
@@ -1710,7 +1815,10 @@ Centralized faction color management:
 - [ ] `Test_RegionFilterReducesList` — FilterByRegion(Europe) shows only 11 factions, FilterByRegion(Africa) shows only 4
 
 **BattleSetupUI tests:**
-- [ ] `Test_BattleSetupShowsUnitPalette` — CreateUnitPalette generates one draggable icon per unit type in the faction
+- [ ] `Test_BattleSetupShowsArmyRoster` — CreateArmyRoster generates one row per unit category in the player's faction
+- [ ] `Test_BattleSetupShowsFormationToolbar` — Formation toolbar has exactly 5 buttons (Line, Column, Wedge, Square, Spread)
+- [ ] `Test_BattleSetupShowsOpponentPreview` — ShowOpponentPreview displays opponent faction name and unit breakdown
+- [ ] `Test_BattleSetupMinimapUpdates` — Moving a unit updates the minimap dot position
 
 **BattleHUD tests:**
 - [ ] `Test_BattleHUDUpdatesUnitCounts` — After a unit dies, displayed count decrements by 1
@@ -1736,7 +1844,7 @@ Centralized faction color management:
 - [ ] `UIThemeManager.cs` created with color constants (PanelBackground, Button states, Text colors, Health colors), font sizes, and factory methods (CreatePanel, CreateButton, CreateText, CreateScrollView, CreateCanvas)
 - [ ] `MainMenuUI.cs` created with Show, Hide, CreateTitle ("WorldWars: 1016 AD"), CreateMenuButtons (Quick Battle, World Map, Unit Viewer, Settings), OnQuickBattle, OnWorldMap, OnUnitViewer, CreateBackgroundScene
 - [ ] `FactionSelectUI.cs` created with Show, Hide, PopulateFactionList (43 cards), CreateFactionCard (flag color, name, region, military), FilterByRegion, OnFactionSelected, CreateRegionTabs, ShowFactionPreview
-- [ ] `BattleSetupUI.cs` created with Show, Hide, CreateUnitPalette, CreatePlacementControls (auto-place, confirm, clear), UpdatePlacementCount, ShowTerrainInfo, OnConfirmPlacement, OnAutoPlace
+- [ ] `BattleSetupUI.cs` created with Show(config, playerSide), Hide, CreateArmyRoster (grouped by category, clickable to select type), CreateFormationToolbar (5 presets: Line/Column/Wedge/Square/Spread with F1-F5 hotkeys), CreatePlacementControls (auto-place, confirm), CreateSelectionInfo (selected count/type/stats), ShowOpponentPreview (opponent army read-only), CreatePlacementMinimap, ShowHotkeyGuide, OnConfirmPlacement, OnAutoPlace, OnFormationSelected
 - [ ] `BattleHUD.cs` created with Initialize, Update (refreshes counts/time), CreateFactionCounters, CreateTimeControls, CreateBattleTimer, CreateMinimap, CreateUnitTooltip, ShowBattleEvent
 - [ ] `BattleResultsUI.cs` created with Show, CreateVictoryBanner, CreateCasualtyReport (losses by type), CreateStatistics (duration, kills, MVP), CreateActionButtons (Rematch, New Battle, Return)
 - [ ] `WorldMapHUD.cs` created with Show, Hide, CreateRegionButtons, CreateSearchBar, CreateSelectedFactionBar, CreateBattleButton (disabled until 2 factions selected), UpdateSelectionState
@@ -1837,7 +1945,7 @@ All data integrity tests in one file. Tests below marked with ★ are NEW additi
 
 Cross-faction balance validation:
 
-- [ ] `Test_NoFactionMilitaryExceeds20xSmallest` — Largest estimatedMilitary < 20× smallest estimatedMilitary (Song 900K vs Tu'i Tonga 12K = 75x, so this tests UNIT BUDGET ratio: max GetBattleUnitBudget / min GetBattleUnitBudget < 4)
+- [ ] `Test_UnitBudgetRatioReflectsMilitaryScale` — Largest GetBattleUnitBudget / smallest GetBattleUnitBudget reflects real military ratios (Song 800 / Tu'i Tonga 48 ≈ 16.7×); verify ratio is between 10× and 20×
 - [ ] `Test_AverageUnitHPBetween60And120` — Mean HP across all 216 units is between 60 and 120
 - [ ] `Test_AverageUnitATKBetween8And20` — Mean ATK across all 216 units is between 8 and 20
 - [ ] `Test_EachCategoryRepresentedByAtLeast3Factions` — At least 3 factions have each UnitCategory (except Elephant, Naval, Special which need >= 1)
@@ -1918,7 +2026,7 @@ End-to-end game flow:
 - [ ] `IntegrationTests.cs` (PlayMode) complete with 4 tests — all pass
 - [ ] Full test suite runs with 0 failures across all 13 test files
 - [ ] Edge cases verified: empty army (0 units) does not crash, same faction vs itself works, single unit vs single unit works
-- [ ] Performance check: battle with 40 units per side (80 total) runs at 30+ FPS on target hardware
+- [ ] Performance check: battle with 200 units per side (400 total) runs at 30+ FPS on target hardware; battles up to 800 per side (1600 total) run at 15+ FPS with LOD and culling
 - [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 9: Comprehensive testing suite — 94 tests across 13 files, all passing"`
 
 ---
@@ -2021,9 +2129,13 @@ Debug tools for battle testing:
 5. **Manual play-through:**
    - Launch game → Main Menu appears
    - Click Quick Battle → Faction Select appears with 43 factions
-   - Select Byzantine Empire (attacker) → Select Song Dynasty (defender)
-   - Battle Setup → Place units on terrain → Auto-place works
-   - Confirm both sides → Countdown → Simulation begins
+   - Select Byzantine Empire (YOUR faction) → Select Song Dynasty (opponent)
+   - Battle Setup → Your 224 Byzantine units spawn on your half in default formation. Song's 800 units auto-placed on the opposite half.
+   - Drag-select your Cataphracts → right-click to move them to a flank → press F3 for Wedge formation
+   - Select all infantry → position them in center → press F1 for Line formation
+   - Use R to rotate your formation to face a river crossing
+   - See opponent army preview on right panel; see minimap showing both armies
+   - Click Confirm → Countdown → Simulation begins
    - Both AIs fight equally → One side wins
    - Results screen shows statistics → Click Rematch → Battle re-runs
    - Click Return → Back to faction select
@@ -2031,7 +2143,7 @@ Debug tools for battle testing:
    - Main Menu → World Map → See all 43 factions
    - Click factions → Info panels appear
    - Select two factions → Battle → Full flow works
-7. **Performance:** 40 units per side at 30+ FPS.
+7. **Performance:** 200 units per side at 30+ FPS; 800 per side at 15+ FPS with LOD system active.
 8. **Legacy:** Existing Viking battle still accessible via debug.
 
 ### Checklist
@@ -2050,7 +2162,7 @@ Debug tools for battle testing:
 - [ ] Full test suite passes (0 failures across all 13 test files)
 - [ ] Manual play-through successful: Main Menu → Quick Battle → Faction Select (43 visible) → Battle Setup → Simulation → Results → Rematch → Return
 - [ ] World map flow works end-to-end: Main Menu → World Map → click factions → info panels → select 2 → Battle
-- [ ] Performance: 40 units per side (80 total) runs at 30+ FPS
+- [ ] Performance: 200 units per side (400 total) runs at 30+ FPS with LOD active; 800 per side (1600 total) runs at 15+ FPS
 - [ ] Build compiles with 0 errors and 0 warnings on new code
 - [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 10: Integration and validation — wired GameManager, editor tools, full test suite green, manual play-through verified"`
 
@@ -2332,53 +2444,55 @@ Static balance constants:
 
 ## Appendix A: Faction Quick Reference
 
-| # | Faction | Region | Capital | Military | Units |
-|---|---------|--------|---------|----------|-------|
-| 1 | North Sea Empire | Europe | London | 48,000 | 5 |
-| 2 | Kingdom of Norway | Europe | Trondheim | 22,000 | 5 |
-| 3 | Kingdom of Sweden | Europe | Sigtuna | 24,000 | 5 |
-| 4 | Kievan Rus' | Europe | Kyiv | 62,000 | 5 |
-| 5 | Kingdom of Poland | Europe | Gniezno | 36,000 | 5 |
-| 6 | Kingdom of Hungary | Europe | Esztergom | 42,000 | 5 |
-| 7 | Holy Roman Empire | Europe | Aachen | 96,000 | 5 |
-| 8 | Kingdom of France | Europe | Paris | 58,000 | 5 |
-| 9 | Byzantine Empire | Europe | Constantinople | 112,000 | 5 |
-| 10 | Christian Iberia | Europe | León | 39,000 | 5 |
-| 11 | Córdoba / Muslim Iberia | Europe | Córdoba | 46,000 | 5 |
-| 12 | Fatimid Caliphate | MiddleEast | Cairo | 72,000 | 5 |
-| 13 | Abbasid Caliphate | MiddleEast | Baghdad | 28,000 | 5 |
-| 14 | Buyid Emirates | MiddleEast | Shiraz | 56,000 | 5 |
-| 15 | Ghaznavid Empire | MiddleEast | Ghazni | 88,000 | 5 |
-| 16 | Kara-Khanid Khanate | MiddleEast | Balasaghun | 74,000 | 5 |
-| 17 | Khwarazm | MiddleEast | Gurganj | 19,000 | 5 |
-| 18 | Georgia | MiddleEast | Kutaisi | 29,000 | 5 |
-| 19 | Armenian Kingdoms | MiddleEast | Ani | 23,000 | 5 |
-| 20 | Chola Empire | SouthAsia | Thanjavur | 122,000 | 5 |
-| 21 | Western Chalukya | SouthAsia | Manyakheta | 92,000 | 5 |
-| 22 | Pala Empire | SouthAsia | Pataliputra | 66,000 | 5 |
-| 23 | Rajput States | SouthAsia | Ajmer | 98,000 | 6 |
-| 24 | Song Empire | EastAsia | Kaifeng | 900,000 | 5 |
-| 25 | Liao Dynasty | EastAsia | Shangjing | 185,000 | 5 |
-| 26 | Goryeo | EastAsia | Kaesong | 72,000 | 5 |
-| 27 | Heian Japan | EastAsia | Kyoto | 61,000 | 5 |
-| 28 | Dali Kingdom | EastAsia | Dali | 31,000 | 5 |
-| 29 | Khmer Empire | SoutheastAsia | Angkor | 78,000 | 5 |
-| 30 | Srivijaya | SoutheastAsia | Palembang | 47,000 | 5 |
-| 31 | Đại Cồ Việt | SoutheastAsia | Hoa Lư | 46,000 | 5 |
-| 32 | Champa | SoutheastAsia | Indrapura | 36,000 | 5 |
-| 33 | Pagan | SoutheastAsia | Bagan | 56,000 | 5 |
-| 34 | Ghana Empire | Africa | Koumbi Saleh | 31,000 | 5 |
-| 35 | Makuria | Africa | Dongola | 21,000 | 5 |
-| 36 | Ethiopian Highlands | Africa | Aksum | 26,000 | 5 |
-| 37 | Kanem | Africa | Njimi | 23,000 | 5 |
-| 38 | Toltec Sphere | Americas | Tula | 33,000 | 5 |
-| 39 | Maya City-States | Americas | Chichén Itzá | 52,000 | 5 |
-| 40 | Oaxaca States | Americas | Monte Albán | 26,000 | 5 |
-| 41 | Tiwanaku Sphere | Americas | Tiwanaku | 19,000 | 5 |
-| 42 | Wari Successor | Americas | Ayacucho | 24,000 | 5 |
-| 43 | Tu'i Tonga Empire | Oceania | Mu'a | 12,000 | 5 |
+| # | Faction | Region | Capital | Military | Unit Types | Battle Budget |
+|---|---------|--------|---------|----------|------------|---------------|
+| 1 | North Sea Empire | Europe | London | 48,000 | 5 | 192 |
+| 2 | Kingdom of Norway | Europe | Trondheim | 22,000 | 5 | 88 |
+| 3 | Kingdom of Sweden | Europe | Sigtuna | 24,000 | 5 | 96 |
+| 4 | Kievan Rus' | Europe | Kyiv | 62,000 | 5 | 248 |
+| 5 | Kingdom of Poland | Europe | Gniezno | 36,000 | 5 | 144 |
+| 6 | Kingdom of Hungary | Europe | Esztergom | 42,000 | 5 | 168 |
+| 7 | Holy Roman Empire | Europe | Aachen | 96,000 | 5 | 384 |
+| 8 | Kingdom of France | Europe | Paris | 58,000 | 5 | 232 |
+| 9 | Byzantine Empire | Europe | Constantinople | 112,000 | 5 | 448 |
+| 10 | Christian Iberia | Europe | León | 39,000 | 5 | 156 |
+| 11 | Córdoba / Muslim Iberia | Europe | Córdoba | 46,000 | 5 | 184 |
+| 12 | Fatimid Caliphate | MiddleEast | Cairo | 72,000 | 5 | 288 |
+| 13 | Abbasid Caliphate | MiddleEast | Baghdad | 28,000 | 5 | 112 |
+| 14 | Buyid Emirates | MiddleEast | Shiraz | 56,000 | 5 | 224 |
+| 15 | Ghaznavid Empire | MiddleEast | Ghazni | 88,000 | 5 | 352 |
+| 16 | Kara-Khanid Khanate | MiddleEast | Balasaghun | 74,000 | 5 | 296 |
+| 17 | Khwarazm | MiddleEast | Gurganj | 19,000 | 5 | 76 |
+| 18 | Georgia | MiddleEast | Kutaisi | 29,000 | 5 | 116 |
+| 19 | Armenian Kingdoms | MiddleEast | Ani | 23,000 | 5 | 92 |
+| 20 | Chola Empire | SouthAsia | Thanjavur | 122,000 | 5 | 488 |
+| 21 | Western Chalukya | SouthAsia | Manyakheta | 92,000 | 5 | 368 |
+| 22 | Pala Empire | SouthAsia | Pataliputra | 66,000 | 5 | 264 |
+| 23 | Rajput States | SouthAsia | Ajmer | 98,000 | 6 | 392 |
+| 24 | Song Empire | EastAsia | Kaifeng | 900,000 | 5 | **800** (capped) |
+| 25 | Liao Dynasty | EastAsia | Shangjing | 185,000 | 5 | 740 |
+| 26 | Goryeo | EastAsia | Kaesong | 72,000 | 5 | 288 |
+| 27 | Heian Japan | EastAsia | Kyoto | 61,000 | 5 | 244 |
+| 28 | Dali Kingdom | EastAsia | Dali | 31,000 | 5 | 124 |
+| 29 | Khmer Empire | SoutheastAsia | Angkor | 78,000 | 5 | 312 |
+| 30 | Srivijaya | SoutheastAsia | Palembang | 47,000 | 5 | 188 |
+| 31 | Đại Cồ Việt | SoutheastAsia | Hoa Lư | 46,000 | 5 | 184 |
+| 32 | Champa | SoutheastAsia | Indrapura | 36,000 | 5 | 144 |
+| 33 | Pagan | SoutheastAsia | Bagan | 56,000 | 5 | 224 |
+| 34 | Ghana Empire | Africa | Koumbi Saleh | 31,000 | 5 | 124 |
+| 35 | Makuria | Africa | Dongola | 21,000 | 5 | 84 |
+| 36 | Ethiopian Highlands | Africa | Aksum | 26,000 | 5 | 104 |
+| 37 | Kanem | Africa | Njimi | 23,000 | 5 | 92 |
+| 38 | Toltec Sphere | Americas | Tula | 33,000 | 5 | 132 |
+| 39 | Maya City-States | Americas | Chichén Itzá | 52,000 | 5 | 208 |
+| 40 | Oaxaca States | Americas | Monte Albán | 26,000 | 5 | 104 |
+| 41 | Tiwanaku Sphere | Americas | Tiwanaku | 19,000 | 5 | 76 |
+| 42 | Wari Successor | Americas | Ayacucho | 24,000 | 5 | 96 |
+| 43 | Tu'i Tonga Empire | Oceania | Mu'a | 12,000 | 5 | **48** (floor) |
 
 **Total factions: 43 | Total unit types: 216 | Total cities: ~155**
+**Battle Budget formula:** `Clamp(estimatedMilitary / 250, 48, 800)` — 20× previous scale
+**Smallest army:** Tu'i Tonga (48 units) | **Largest army:** Song Empire (800 units, capped) | **Median army:** ~188 units
 
 See `faction-data.md` for COMPLETE per-faction data: every unit has full stat blocks (HP/ATK/DEF/SPD/Range/CD), ability IDs, visual configs (weapon/armor/helmet/shield/materials/cape/skin/bodyScale). Every city has garrison numbers, normalized positions, terrain. Every faction has colors, ruler, trait, asset. Every ability has trigger/cooldown/duration/modifiers/conditions. The executing AI should copy these values directly into C# data classes with ZERO interpretation needed.
 
@@ -2435,8 +2549,10 @@ Phases 3, 4, 5, 6 can run in parallel after Phase 2. Phases 7 and 8 need their p
 6. **No prefabs.** Everything is procedural. UI is built with code. Models are built from primitives. Terrain is generated. Elephants use the multi-primitive build from architecture.md "Elephant Unit Model Specification".
 7. **Keep it running.** The game should compile and run after every phase. Never leave it in a broken state.
 8. **File per responsibility.** One class per file. No mega-files over 800 lines. If a file exceeds that, split it.
+15. **Player placement is key.** The player picks THEIR faction first. During BattleSetup, the player gets drag-and-drop control of their own army's positioning. The opponent is auto-placed. This makes strategic placement meaningful — it's the one thing the player directly controls before identical AIs take over.
+16. **20× unit scale is non-negotiable.** `UnitBudgetScaleFactor = 250`, `MaxUnitsPerSide = 800`, `DefaultMapSize = 300`. Every optimization (LOD, SpatialGrid, flocking, GPU instancing) exists to make this work at 30+ FPS for typical battles (200/side) and 15+ FPS for maximum battles (800/side).
 9. **Error handling.** Every public method should handle null inputs gracefully. Log warnings, don't crash.
-10. **Performance matters.** Target: 30+ FPS with 40 units per side (80 total). Use object pooling for projectiles and damage popups. Avoid per-frame allocations (no `new List<>` or string concatenation in Update loops). If battles drop below 30 FPS with 80 units, profile with Unity Profiler and optimize the hottest path.
+10. **Performance matters at 20× scale.** Target: 30+ FPS with 200 units per side (400 total); 15+ FPS with 800 per side (1600 total). Use object pooling for projectiles and damage popups. Avoid per-frame allocations. Implement LOD system: units > 60m from camera use simplified 3-mesh models (body+weapon+head), units > 120m use single-quad billboards. Use spatial partitioning (grid or quadtree) for O(1) nearest-enemy queries instead of O(n²). Batch mesh generation with `Graphics.DrawMeshInstanced` for identical unit types. Disable per-unit NavMeshAgent above 200 units/side — use custom flocking/steering instead. Health bars hidden beyond 40m. Weapon trails limited to 20 nearest units. Damage popups pooled (max 30 active). Profile with Unity Profiler and optimize the hottest path.
 11. **Persistence through interfaces.** ALL save/load goes through `IPersistenceService`. Implement `LocalPersistenceService` now. This will be swapped for `SupabasePersistenceService` later. See architecture.md "Supabase Persistence Layer" section.
 12. **Campaign mode is required.** Phases 11-12 are not optional. The game must support multi-battle conquest campaigns.
 13. **Ability conditions.** When implementing `AbilityDefinition`, include `targetCategoryCondition`, `terrainCondition`, and `specialCondition` fields. These are documented in `faction-data.md` Ability Reference table.
@@ -2454,17 +2570,17 @@ Quick reference for test counts per phase. Each phase lists tests inline — wri
 | 1 | 16 | EditMode | EventBus, GameConfig, Enums, BattleRandom, GameManager |
 | 2 | 31 | EditMode | Faction/unit/city/ability/terrain data validation |
 | 3 | 14 | EditMode | Biome generation, rivers, terrain combat modifiers |
-| 4 | 20 | EditMode | UnitFactory, UnitModelBuilder, AbilitySystem conditions |
+| 4 | 26 | EditMode | UnitFactory, UnitModelBuilder, AbilitySystem, LOD, SpatialGrid |
 | 5 | 18 | EditMode | SimulationAI symmetry, per-category AI, formations, targeting |
 | 6 | 10 | PlayMode | World map generation, interaction, camera |
-| 7 | 14 | PlayMode | Battle lifecycle, placement, time controls, determinism |
-| 8 | 14 | PlayMode | All UI screens, tooltips, minimap, color palette |
-| 9 | 94 | Both | **Final consolidated suite:** 68 EditMode + 26 PlayMode |
+| 7 | 22 | PlayMode | Battle lifecycle, interactive placement, formations, time controls, determinism |
+| 8 | 17 | PlayMode | All UI screens, tooltips, minimap, color palette, army roster |
+| 9 | 106 | Both | **Final consolidated suite:** 76 EditMode + 30 PlayMode |
 | 10 | 0 | — | No new tests; runs full suite from Phase 9 |
 | 11 | 23 | Both | **Campaign:** 18 EditMode + 5 PlayMode |
 | 12 | 0 | — | No new tests; manual E2E verification |
 
 **Final test file count: 15** (8 EditMode + 7 PlayMode)
-**Final unique test count: 117** (86 EditMode + 31 PlayMode)
+**Final unique test count: 129** (94 EditMode + 35 PlayMode)
 
 Each test name follows the pattern `Test_[SystemUnderTest]_[ExpectedBehavior]` with a 5-10 word summary describing the exact pass/fail condition.

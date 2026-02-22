@@ -10,22 +10,23 @@ This document defines the complete technical architecture for the 1016 AD Global
 
 ### Quick Battle Flow
 ```
-┌──────────┐   Quick Battle   ┌──────────────┐   Select A   ┌─────────────┐
-│          │ ───────────────> │              │ ──────────> │             │
-│ MainMenu │                  │ FactionSelect│             │ FactionSel. │
-│          │ <─────────────── │  (Attacker)  │ <────────── │ (Defender)  │
-└──────────┘   Back           └──────────────┘   Back      └─────────────┘
-     │                                                           │
-     │  World Map                                                │ Confirm
-     ▼                                                           ▼
-┌──────────┐   Pick Factions  ┌──────────────┐   Confirm   ┌─────────────┐
-│          │ ───────────────> │              │ ──────────> │   Battle    │
-│ WorldMap │                  │ BattleSetup  │             │ Simulation  │
-│          │ <─────────────── │ (Placement)  │             │  (AI vs AI) │
-└──────────┘   Back           └──────────────┘             └─────────────┘
-     ▲                                                           │
-     │                        ┌──────────────┐                   │ One side
-     └─────── Return ──────── │   Battle     │ <─────────────────┘ eliminated
+┌──────────┐   Quick Battle   ┌──────────────┐  Select YOUR  ┌─────────────┐
+│          │ ───────────────> │  Faction     │  Faction      │  Faction    │
+│ MainMenu │                  │  Select      │ ──────────>   │  Select     │
+│          │ <─────────────── │  (YOUR Side) │ <──────────   │ (Opponent)  │
+└──────────┘   Back           └──────────────┘   Back        └─────────────┘
+     │                                                             │
+     │  World Map                                                  │ Confirm
+     ▼                                                             ▼
+┌──────────┐   Pick Factions  ┌──────────────────────────┐  Confirm  ┌───────────┐
+│          │ ───────────────> │     BattleSetup          │ ───────> │  Battle   │
+│ WorldMap │                  │ YOUR army: drag/select/  │          │ Simulation│
+│          │ <─────────────── │ rotate/formation presets  │          │ (AI vs AI)│
+└──────────┘   Back           │ Opponent: auto-placed    │          └───────────┘
+     ▲                        │ Army size: 48-800 units  │                │
+     │                        └──────────────────────────┘                │ One side
+     │                        ┌──────────────┐                            │ eliminated
+     └─────── Return ──────── │   Battle     │ <──────────────────────────┘
                               │   Results    │
                               └──────────────┘
 ```
@@ -156,7 +157,8 @@ public class FactionDefinition
 
     public int GetBattleUnitBudget()
     {
-        return Mathf.Clamp(estimatedMilitary / GameConfig.UnitBudgetScaleFactor, 10, 40);
+        // 20× scale: ScaleFactor=250, range 48-800. Army size reflects historical military strength.
+        return Mathf.Clamp(estimatedMilitary / GameConfig.UnitBudgetScaleFactor, 48, GameConfig.MaxUnitsPerSide);
     }
 
     public CityDefinition GetCapital()
@@ -295,11 +297,13 @@ public class BattleConfiguration
     public int defenderUnitBudget;
     public int mapSize;
     public int randomSeed;
+    public Faction? playerSide;  // Which side the player controls for placement (null = AI-vs-AI spectator)
 
     public static BattleConfiguration Create(
         FactionDefinition attacker,
         FactionDefinition defender,
-        CityDefinition location = null)
+        CityDefinition location = null,
+        Faction? playerSide = null)
     {
         var config = new BattleConfiguration();
         config.attackerFaction = attacker;
@@ -307,10 +311,12 @@ public class BattleConfiguration
         config.battleLocation = location ?? defender.GetCapital();
         config.primaryTerrain = config.battleLocation.primaryTerrain;
         config.secondaryTerrain = config.battleLocation.secondaryTerrain;
+        // 20× scale: budgets range from 48 (Tu'i Tonga) to 800 (Song Empire)
         config.attackerUnitBudget = attacker.GetBattleUnitBudget();
         config.defenderUnitBudget = defender.GetBattleUnitBudget();
-        config.mapSize = GameConfig.DefaultMapSize;
+        config.mapSize = GameConfig.DefaultMapSize; // 300 (scaled up for large armies)
         config.randomSeed = System.Environment.TickCount;
+        config.playerSide = playerSide;
         return config;
     }
 }
@@ -453,6 +459,56 @@ User Input
     │
     └──> BattleCamera / WorldMapCamera
 ```
+
+---
+
+## Pre-Battle Placement System
+
+The player controls the placement of **their own faction's army** before each battle. The opponent's army is auto-placed by the AI.
+
+### Placement Flow
+
+```
+BattleSetup.Initialize(config, playerSide)
+    │
+    ├── Generate terrain (TerrainGenerator)
+    ├── Auto-place OPPONENT army (FormationController.ArrangeByCategory)
+    │   └── Opponent units visible but non-interactable
+    │
+    ├── Spawn PLAYER army in default formation
+    │   └── Player's placement zone: 0% to 35% of map depth on their side
+    │
+    └── Enter interactive placement loop:
+        │
+        ├── Selection (left-click, shift-click, drag-box, double-click, Ctrl+A)
+        ├── Movement (right-click selected → move group preserving formation)
+        ├── Rotation (R key / middle-drag → rotate formation around center)
+        ├── Formation presets (F1=Line, F2=Column, F3=Wedge, F4=Square, F5=Spread)
+        ├── Quick-select (number keys 1-9 → select all units of a category)
+        │
+        └── Player clicks CONFIRM → countdown → simulation starts
+```
+
+### Formation Types
+
+| Key | Formation | Description | Best For |
+|-----|-----------|-------------|----------|
+| F1 | Line | Units spread evenly in a horizontal line | General purpose, maximum frontage |
+| F2 | Column | Units stacked in a vertical line | Marching through chokepoints |
+| F3 | Wedge | V-shaped point toward enemy | Cavalry charges, piercing enemy line |
+| F4 | Square | Units arranged in a hollow square | Defending against cavalry, all-round defense |
+| F5 | Spread | Wide spacing between units | Minimizing ranged damage, covering ground |
+
+### Army Size at 20× Scale
+
+With `UnitBudgetScaleFactor = 250` and `MaxUnitsPerSide = 800`:
+
+- Smallest: Tu'i Tonga Empire → `12,000 / 250 = 48 units`
+- Medium: North Sea Empire → `48,000 / 250 = 192 units`
+- Large: Byzantine Empire → `112,000 / 250 = 448 units`
+- Largest: Song Empire → `900,000 / 250 = 3600 → capped at 800 units`
+
+The player can arrange 48 to 800 units on their half of a 300×300 battlefield. The BattleSetupUI shows an army roster grouped by unit category, a formation toolbar, a minimap, and a read-only opponent army preview.
 
 ---
 
@@ -918,17 +974,38 @@ CREATE TABLE profiles (
 
 ---
 
-## Performance Budgets
+## Performance Budgets (20× Unit Scale)
 
 | Metric | Target | Notes |
 |--------|--------|-------|
-| Battle FPS | 30+ | With 40 units per side (80 total) |
+| Battle FPS (medium) | 30+ | With 200 units per side (400 total), LOD active |
+| Battle FPS (max) | 15+ | With 800 units per side (1600 total), aggressive LOD |
 | World Map FPS | 60 | Static scene, no combat |
-| Unit spawn time | < 50ms each | Procedural model construction |
-| Terrain generation | < 2s | Including NavMesh bake |
-| Memory | < 500MB | All factions loaded |
-| AI decision time | < 1ms per unit | 80 units × 0.05s interval |
-| Battle completion | 30-120s sim time | At 1x speed |
+| Unit spawn time | < 5ms each | Procedural model with mesh caching; 800 units < 4s total |
+| Terrain generation | < 3s | Including NavMesh bake for 300×300 map |
+| Memory | < 1GB | All factions loaded + 1600 active units |
+| AI decision time | < 0.5ms per unit | Uses SpatialGrid for O(1) neighbor queries |
+| Battle completion | 60-240s sim time | At 1x speed; larger armies take longer |
+| Placement responsiveness | < 16ms | Drag/select/move 800 units at 60 FPS during setup |
+
+### LOD Strategy
+
+| LOD Level | Distance | Detail | Cost per Unit |
+|-----------|----------|--------|---------------|
+| Full | < 60m | All meshes, health bar, trails, normal maps | ~150 tris |
+| Simplified | 60-120m | 3-mesh (body+weapon+head), no health bar | ~30 tris |
+| Billboard | 120-200m | Single textured quad, faction-colored | ~2 tris |
+| Culled | > 200m | Renderer off, logic only | 0 tris |
+
+Max 80 units at Full LOD regardless of distance. Camera auto-adjusts for large battles.
+
+### Spatial Partitioning
+
+`SpatialGrid` with 10-unit cell size divides the 300×300 battlefield into 30×30 cells. Each cell stores a list of units. `GetNearby(pos, radius)` only checks the ~9 cells within radius. Reduces nearest-enemy queries from O(n²) to O(1) amortized.
+
+### Movement at Scale
+
+For battles > 200 units/side, `UnitMovement` switches from NavMeshAgent to lightweight flocking/steering (Boids). This avoids the NavMesh agent overhead (each agent recalculates path every few frames). Flocking uses: seek-target, avoid-allies (separation), match-formation (cohesion), align-facing (alignment). Simple raycast for obstacle avoidance.
 
 ---
 
