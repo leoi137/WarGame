@@ -116,6 +116,36 @@ public static class ShaderHelper
     public static Material ClothMaterial(Color color) =>
         CreateMaterial(color, 0f, 0.08f);
 
+    // Cultural diversity presets
+
+    /// <summary>Silk/satin — Asian and Islamic units.</summary>
+    public static Material SilkMaterial(Color color) =>
+        CreateMaterial(color, 0.1f, 0.5f);
+
+    /// <summary>Lacquered armor — East Asian units.</summary>
+    public static Material LacquerMaterial(Color color) =>
+        CreateMaterial(color, 0.4f, 0.8f);
+
+    /// <summary>Bronze age material — warm metallic sheen.</summary>
+    public static Material BronzeMaterial(Color color) =>
+        CreateMaterial(color * new Color(1.1f, 0.95f, 0.8f, 1f), 0.6f, 0.5f);
+
+    /// <summary>Obsidian — American units, dark and glossy.</summary>
+    public static Material ObsidianMaterial(Color color) =>
+        CreateMaterial(Color.Lerp(color, Color.black, 0.6f), 0.7f, 0.9f);
+
+    /// <summary>Cotton armor — American units, matte fiber.</summary>
+    public static Material CottonMaterial(Color color) =>
+        CreateMaterial(color, 0f, 0.1f);
+
+    /// <summary>Sandy terrain coloring for desert biomes.</summary>
+    public static Material SandMaterial(Color color) =>
+        CreateMaterial(color, 0f, 0.05f);
+
+    /// <summary>Dense vegetation coloring for jungle biomes.</summary>
+    public static Material JungleMaterial(Color color) =>
+        CreateMaterial(color, 0f, 0.15f);
+
     public static Texture2D CreateGradientTexture(Color top, Color bottom, int size = 16)
     {
         Texture2D tex = new Texture2D(1, size);

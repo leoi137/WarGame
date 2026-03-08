@@ -21,7 +21,7 @@ namespace WorldWars.Tests.PlayMode
             foreach (TerrainType type in Enum.GetValues(typeof(TerrainType)))
             {
                 var config = BiomeDefinitions.GetConfig(type);
-                Assert.IsNotNull(config.primaryColor);
+                Assert.AreNotEqual(default(Color), config.groundColor);
             }
             yield return null;
         }

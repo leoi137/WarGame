@@ -46,8 +46,8 @@ namespace WorldWars.Tests.PlayMode
             {
                 var config = BattleConfiguration.Create(attacker, defender);
                 Assert.IsNotNull(config);
-                Assert.Greater(config.attackerBudget, 0);
-                Assert.Greater(config.defenderBudget, 0);
+                Assert.Greater(config.attackerUnitBudget, 0);
+                Assert.Greater(config.defenderUnitBudget, 0);
             }
             yield return null;
         }

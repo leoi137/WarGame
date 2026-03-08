@@ -54,10 +54,14 @@ public class MainMenuUI : MonoBehaviour
 
     public void CreateMenuButtons()
     {
-        float y = 40;
-        float spacing = 70;
+        float y = 60;
+        float spacing = 65;
 
         UIThemeManager.CreateButton(root.transform, "QuickBattle", "Quick Battle", new Vector2(0, y), new Vector2(280, 50), OnQuickBattle);
+        y -= spacing;
+        UIThemeManager.CreateButton(root.transform, "Campaign", "Campaign", new Vector2(0, y), new Vector2(280, 50), OnCampaign);
+        y -= spacing;
+        UIThemeManager.CreateButton(root.transform, "LoadCampaign", "Load Campaign", new Vector2(0, y), new Vector2(280, 50), OnLoadCampaign);
         y -= spacing;
         UIThemeManager.CreateButton(root.transform, "WorldMap", "World Map", new Vector2(0, y), new Vector2(280, 50), OnWorldMap);
         y -= spacing;
@@ -86,6 +90,18 @@ public class MainMenuUI : MonoBehaviour
 
     void OnUnitViewer()
     {
+    }
+
+    void OnCampaign()
+    {
+        GameManager.Instance?.TransitionTo(GameFlowState.CampaignSetup);
+    }
+
+    void OnLoadCampaign()
+    {
+        var go = new GameObject("SaveLoadUI");
+        var ui = go.AddComponent<SaveLoadUI>();
+        ui.Show();
     }
 
     void OnSettings()

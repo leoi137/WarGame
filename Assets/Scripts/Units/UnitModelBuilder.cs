@@ -317,10 +317,31 @@ public static class UnitModelBuilder
                 unit.weaponTip = CreatePivot("SlingTip", unit.pivotRightHand, new Vector3(0, 0, 0.2f));
                 break;
             case WeaponStyle.DualAxe:
-            case WeaponStyle.DualSword:
-                BuildWeapon(unit, config);
-                BuildSecondaryWeapon(unit, config);
+            {
+                // Build primary-hand axe inline to avoid infinite recursion
+                unit.partWeapon = CreatePart(PrimitiveType.Cube, "AxeHandle", unit.pivotRightHand,
+                    new Vector3(0, 0, 0.28f), new Vector3(0.04f, 0.04f, 0.48f) * s, wood, unit).transform;
+                CreatePart(PrimitiveType.Cube, "AxeHead", unit.pivotRightHand,
+                    new Vector3(0, 0.08f * s, 0.48f), new Vector3(0.03f, 0.22f, 0.12f) * s, metal, unit);
+                unit.weaponTip = CreatePivot("AxeTip", unit.pivotRightHand, new Vector3(0, 0.2f * s, 0.54f));
                 break;
+            }
+            case WeaponStyle.DualSword:
+            {
+                // Build primary-hand sword inline to avoid infinite recursion
+                CreatePart(PrimitiveType.Cube, "SwordGrip", unit.pivotRightHand,
+                    new Vector3(0, -0.02f * s, 0), new Vector3(0.04f, 0.12f, 0.04f) * s, leather, unit);
+                CreateSphere("SwordPommel", unit.pivotRightHand,
+                    new Vector3(0, -0.09f * s, 0), new Vector3(0.06f, 0.06f, 0.06f) * s,
+                    ShaderHelper.GoldMaterial(DefaultGold), unit);
+                CreatePart(PrimitiveType.Cube, "SwordGuard", unit.pivotRightHand,
+                    new Vector3(0, 0.04f * s, 0), new Vector3(0.16f, 0.035f, 0.05f) * s,
+                    ShaderHelper.GoldMaterial(DefaultGold), unit);
+                unit.partWeapon = CreatePart(PrimitiveType.Cube, "SwordBlade", unit.pivotRightHand,
+                    new Vector3(0, 0.04f * s, 0.32f), new Vector3(0.05f, 0.1f, 0.5f) * s, metal, unit).transform;
+                unit.weaponTip = CreatePivot("WeaponTip", unit.pivotRightHand, new Vector3(0, 0.04f * s, 0.55f));
+                break;
+            }
             case WeaponStyle.Atlatl:
                 unit.partWeapon = CreatePart(PrimitiveType.Cube, "Atlatl", unit.pivotRightHand,
                     new Vector3(0, 0, 0.15f), new Vector3(0.03f, 0.08f, 0.25f) * s, wood, unit).transform;

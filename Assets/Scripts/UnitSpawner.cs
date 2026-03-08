@@ -156,6 +156,33 @@ public class UnitSpawner : MonoBehaviour
         anim.weaponLeft = unit.partWeaponLeft;
     }
 
+    /// <summary>
+    /// Spawns an army from data-driven faction definitions at the given positions.
+    /// Each unit is built via UnitFactory, registered with FactionManager.
+    /// </summary>
+    public void SpawnFromDefinition(FactionDefinition faction, Faction side, System.Collections.Generic.List<Vector3> positions)
+    {
+        if (faction == null || faction.unitTypes == null || positions == null) return;
+
+        int budget = faction.GetBattleUnitBudget();
+        int perType = Mathf.Max(1, budget / faction.unitTypes.Count);
+        int spawned = 0;
+        int posIndex = 0;
+
+        foreach (var typeDef in faction.unitTypes)
+        {
+            int count = Mathf.Min(perType, budget - spawned);
+            for (int i = 0; i < count && posIndex < positions.Count; i++)
+            {
+                var unit = UnitFactory.CreateUnit(typeDef, faction, side, positions[posIndex], Quaternion.identity);
+                if (unit != null && FactionManager.Instance != null)
+                    FactionManager.Instance.RegisterUnit(unit);
+                posIndex++;
+                spawned++;
+            }
+        }
+    }
+
     float GetTerrainHeight(Vector3 pos)
     {
         if (Terrain.activeTerrain != null)

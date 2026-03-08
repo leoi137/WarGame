@@ -1,0 +1,22 @@
+{
+    "name": "WorldWars.Editor",
+    "rootNamespace": "",
+    "references": [
+        "WorldWars",
+        "Unity.InputSystem",
+        "UnityEngine.UI",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.AI.Navigation"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

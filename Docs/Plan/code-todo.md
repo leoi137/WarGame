@@ -503,30 +503,30 @@ Top-level state machine replacing GameBootstrap as the primary entry point:
 ### Tests
 
 **EventBus tests:**
-- [ ] `Test_EventBusSubscribeAndPublish` — Subscriber receives published event data correctly
-- [ ] `Test_EventBusUnsubscribe` — Unsubscribed handler stops receiving events
-- [ ] `Test_EventBusMultipleSubscribers` — Multiple handlers all receive same event
-- [ ] `Test_EventBusClear` — Clear removes all subscriptions completely
-- [ ] `Test_EventBusNoSubscribersNoError` — Publishing with no subscribers does not throw
+- [x] `Test_EventBusSubscribeAndPublish` — Subscriber receives published event data correctly
+- [x] `Test_EventBusUnsubscribe` — Unsubscribed handler stops receiving events
+- [x] `Test_EventBusMultipleSubscribers` — Multiple handlers all receive same event
+- [x] `Test_EventBusClear` — Clear removes all subscriptions completely
+- [x] `Test_EventBusNoSubscribersNoError` — Publishing with no subscribers does not throw
 
 **GameConfig tests:**
-- [ ] `Test_GameConfigDefaultValues` — All config values > 0: MapSize > 0, TickRate > 0, MaxUnits > 0, etc.
-- [ ] `Test_GameConfigMaxBattleSpeedAboveDefault` — MaxBattleSpeed >= DefaultBattleSpeed
+- [x] `Test_GameConfigDefaultValues` — All config values > 0: MapSize > 0, TickRate > 0, MaxUnits > 0, etc.
+- [x] `Test_GameConfigMaxBattleSpeedAboveDefault` — MaxBattleSpeed >= DefaultBattleSpeed
 
 **Enums tests:**
-- [ ] `Test_EnumsHaveExpectedValues` — TerrainType has 10 values, UnitCategory has 9 values
-- [ ] `Test_GameFlowStateHas12Values` — GameFlowState enum contains all 12 states (6 base + 6 campaign)
+- [x] `Test_EnumsHaveExpectedValues` — TerrainType has 10 values, UnitCategory has 9 values
+- [x] `Test_GameFlowStateHas12Values` — GameFlowState enum contains all 12 states (6 base + 6 campaign)
 
 **BattleRandom tests:**
-- [ ] `Test_BattleRandomDeterministic` — Same seed produces identical sequence of 100 values
-- [ ] `Test_BattleRandomRange` — Range(min,max) over 1000 calls always returns within [min,max)
-- [ ] `Test_BattleRandomChance` — Chance(0) always false, Chance(1) always true over 100 calls
+- [x] `Test_BattleRandomDeterministic` — Same seed produces identical sequence of 100 values
+- [x] `Test_BattleRandomRange` — Range(min,max) over 1000 calls always returns within [min,max)
+- [x] `Test_BattleRandomChance` — Chance(0) always false, Chance(1) always true over 100 calls
 
 **GameManager tests:**
-- [ ] `Test_GameManagerSingletonNotNull` — Instance returns non-null after Awake
-- [ ] `Test_GameManagerInitialStateIsMainMenu` — CurrentState is MainMenu after initialization
-- [ ] `Test_GameManagerTransitionToPublishesEvent` — TransitionTo fires GameStateChangedEvent with correct old/new state
-- [ ] `Test_GameManagerStartQuickBattle` — StartQuickBattle stores attacker/defender and transitions to BattleSetup
+- [x] `Test_GameManagerSingletonNotNull` — Instance returns non-null after Awake
+- [x] `Test_GameManagerInitialStateIsMainMenu` — CurrentState is MainMenu after initialization
+- [x] `Test_GameManagerTransitionToPublishesEvent` — TransitionTo fires GameStateChangedEvent with correct old/new state
+- [x] `Test_GameManagerStartQuickBattle` — StartQuickBattle stores attacker/defender and transitions to BattleSetup
 
 ### Checklist
 
@@ -537,7 +537,7 @@ Top-level state machine replacing GameBootstrap as the primary entry point:
 - [x] `BattleRandom.cs` created wrapping System.Random with Range(float), Range(int), Chance(float), Value
 - [x] All Phase 1 tests written and passing (16 tests total)
 - [x] Project compiles with no errors
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 1: Core foundation — Enums, EventBus, GameConfig, GameManager, BattleRandom"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 1: Core foundation — Enums, EventBus, GameConfig, GameManager, BattleRandom"`
 
 ---
 
@@ -877,7 +877,7 @@ Returns `List<FactionDefinition>` for 11 European factions:
 - [x] `FactionDatabase.cs` aggregates all 43 factions with Get, GetAll, GetByRegion methods
 - [x] `UnitDatabase.cs` indexes all 216 unit types with Get, GetAll, GetForFaction methods
 - [x] All Phase 2 tests written and passing (31 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 2: Data models and faction database — 43 factions, 216 units, abilities, terrain definitions"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 2: Data models and faction database — 43 factions, 216 units, abilities, terrain definitions"`
 
 ---
 
@@ -1007,7 +1007,7 @@ Runtime combat modifiers based on terrain:
 - [x] `VegetationGenerator.cs` created with Generate, CreateTree, CreateRock, CreateBush (6 tree styles per biome)
 - [x] `TerrainEffects.cs` created with GetMovementMultiplier, GetDefenseBonus, GetRangedAccuracy, GetVisibilityRange, IsElevated, GetElevationAdvantage, SampleTerrainAt
 - [x] All Phase 3 tests written and passing (14 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 3: Terrain and battlefield generation — 10 biomes, elevation, rivers, vegetation, combat modifiers"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 3: Terrain and battlefield generation — 10 biomes, elevation, rivers, vegetation, combat modifiers"`
 
 ---
 
@@ -1223,7 +1223,7 @@ This replaces the O(n²) `FindNearestEnemy` loops in AI and combat systems.
 - [x] `SpatialGrid.cs` created with cell-based spatial partitioning (cellSize=10), Insert, GetNearby, GetNearest, CountInRadius for O(1) neighbor queries
 - [x] Legacy Viking models preserved: North Sea Empire Huscarl/Hunter/Berserker/Shieldbearer produce same pivot layout, mesh count, and weapon types as current game
 - [x] All Phase 4 tests written and passing (26 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 4: Unit system refactor — data-driven UnitFactory, UnitModelBuilder, AbilitySystem with conditions"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 4: Unit system refactor — data-driven UnitFactory, UnitModelBuilder, AbilitySystem with conditions"`
 
 ---
 
@@ -1318,34 +1318,34 @@ Evaluates terrain for tactical positioning:
 ### Tests
 
 **SimulationAI symmetry tests:**
-- [ ] `Test_SimulationAIIdenticalForBothSides` — Two SimulationAI instances with same unit lists and seed make identical decisions (same target, same position)
-- [ ] `Test_AIDecisionsDeterministicWithSeed` — Same seed, same unit positions → AI produces identical orders on repeated runs
+- [x] `Test_SimulationAIIdenticalForBothSides` — Two SimulationAI instances with same unit lists and seed make identical decisions (same target, same position)
+- [x] `Test_AIDecisionsDeterministicWithSeed` — Same seed, same unit positions → AI produces identical orders on repeated runs
 
 **Per-category behavior tests:**
-- [ ] `Test_AISelectsNearestTarget` — Unit with no special context targets the closest living enemy
-- [ ] `Test_AIRangedMaintainsDistance` — Ranged unit issues retreat order when melee enemy is within 3 units
-- [ ] `Test_AICavalryChargesRanged` — Cavalry targets ranged unit over equal-distance infantry
-- [ ] `Test_AITankHoldsFormation` — Heavy infantry stays within 3 units of formation center
-- [ ] `Test_AIRetreatsAtLowHP` — Unit below 20% HP retreats toward own spawn side
-- [ ] `Test_AIElephantChargesLineFirst` — Elephant unit targets frontline clusters rather than isolated units
+- [x] `Test_AISelectsNearestTarget` — Unit with no special context targets the closest living enemy
+- [x] `Test_AIRangedMaintainsDistance` — Ranged unit issues retreat order when melee enemy is within 3 units
+- [x] `Test_AICavalryChargesRanged` — Cavalry targets ranged unit over equal-distance infantry
+- [x] `Test_AITankHoldsFormation` — Heavy infantry stays within 3 units of formation center
+- [x] `Test_AIRetreatsAtLowHP` — Unit below 20% HP retreats toward own spawn side
+- [x] `Test_AIElephantChargesLineFirst` — Elephant unit targets frontline clusters rather than isolated units
 
 **TacticalDecisionMaker tests:**
-- [ ] `Test_AIStrengthRatioAffectsStance` — Army with < 0.6 strength ratio adopts Defensive stance
-- [ ] `Test_TacticalAdvanceTargetWithinBounds` — GetAdvanceTarget returns position within map bounds (0 to mapSize)
-- [ ] `Test_GetFlankPositionNotOnEnemyFrontline` — GetFlankPosition returns a position offset from enemy center
+- [x] `Test_AIStrengthRatioAffectsStance` — Army with < 0.6 strength ratio adopts Defensive stance
+- [x] `Test_TacticalAdvanceTargetWithinBounds` — GetAdvanceTarget returns position within map bounds (0 to mapSize)
+- [x] `Test_GetFlankPositionNotOnEnemyFrontline` — GetFlankPosition returns a position offset from enemy center
 
 **FormationController tests:**
-- [ ] `Test_FormationPlacesShieldsFront` — ArrangeByCategory puts HeavyInfantry in front 30% of formation
-- [ ] `Test_FormationPlacesRangedBack` — ArrangeByCategory puts Ranged units in back 30% of formation
-- [ ] `Test_FormationPositionsAreSpaced` — GetFormationPositions returns positions at least 1.5 units apart
+- [x] `Test_FormationPlacesShieldsFront` — ArrangeByCategory puts HeavyInfantry in front 30% of formation
+- [x] `Test_FormationPlacesRangedBack` — ArrangeByCategory puts Ranged units in back 30% of formation
+- [x] `Test_FormationPositionsAreSpaced` — GetFormationPositions returns positions at least 1.5 units apart
 
 **TargetSelector tests:**
-- [ ] `Test_TargetScoringFavorsWeak` — ScoreTarget returns higher score for 20% HP target than 100% HP target at same distance
-- [ ] `Test_TypeMatchupBonusCorrect` — GetTypeMatchupBonus(HeavyCavalry, Ranged) returns a positive bonus value
+- [x] `Test_TargetScoringFavorsWeak` — ScoreTarget returns higher score for 20% HP target than 100% HP target at same distance
+- [x] `Test_TypeMatchupBonusCorrect` — GetTypeMatchupBonus(HeavyCavalry, Ranged) returns a positive bonus value
 
 **TerrainAnalyzer tests:**
-- [ ] `Test_TerrainAnalyzerFindsHighGround` — FindBestDefensivePosition returns a position with higher elevation than the starting position
-- [ ] `Test_TerrainAnalyzerFindsCover` — FindForestCover returns position on Forest terrain when forest exists within radius
+- [x] `Test_TerrainAnalyzerFindsHighGround` — FindBestDefensivePosition returns a position with higher elevation than the starting position
+- [x] `Test_TerrainAnalyzerFindsCover` — FindForestCover returns position on Forest terrain when forest exists within radius
 
 ### Checklist
 
@@ -1356,7 +1356,7 @@ Evaluates terrain for tactical positioning:
 - [x] `TerrainAnalyzer.cs` created with FindBestDefensivePosition, FindBestRangedPosition, HasTerrainAdvantage, EvaluatePositionScore, FindChokePoints, FindForestCover
 - [x] Both attacker and defender use same SimulationAI class, confirmed by code inspection (no Faction-specific branching in decision logic)
 - [x] All Phase 5 tests written and passing (18 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 5: AI simulation engine — symmetric SimulationAI, tactical decisions, formations, target selection"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 5: AI simulation engine — symmetric SimulationAI, tactical decisions, formations, target selection"`
 
 ---
 
@@ -1459,20 +1459,20 @@ Displays faction details when selected:
 ### Tests
 
 **Map generation tests:**
-- [ ] `Test_WorldMapGeneratorCreates43Territories` — Generate(factions) creates exactly 43 territory meshes, one per faction
-- [ ] `Test_AllCitiesPlacedOnMap` — All ~155 cities have CityMarker objects placed at correct world positions
-- [ ] `Test_NormalizedPositionsMapToWorldCoords` — NormalizedToWorld(0,0) returns map origin, NormalizedToWorld(1,1) returns map far corner
+- [x] `Test_WorldMapGeneratorCreates43Territories` — Generate(factions) creates exactly 43 territory meshes, one per faction
+- [x] `Test_AllCitiesPlacedOnMap` — All ~155 cities have CityMarker objects placed at correct world positions
+- [x] `Test_NormalizedPositionsMapToWorldCoords` — NormalizedToWorld(0,0) returns map origin, NormalizedToWorld(1,1) returns map far corner
 
 **Interaction tests:**
-- [ ] `Test_FactionSelectionHighlightsTerritory` — Calling SelectFaction changes territory renderer material to highlighted state
-- [ ] `Test_RaycastReturnsFaction` — RaycastToFaction at a known territory position returns the correct FactionDefinition
-- [ ] `Test_RaycastToCity` — RaycastToCity at a known city marker position returns the correct CityDefinition
-- [ ] `Test_InfoPanelShowsCorrectData` — FactionInfoPanel.Show displays the faction's displayName and rulerName
+- [x] `Test_FactionSelectionHighlightsTerritory` — Calling SelectFaction changes territory renderer material to highlighted state
+- [x] `Test_RaycastReturnsFaction` — RaycastToFaction at a known territory position returns the correct FactionDefinition
+- [x] `Test_RaycastToCity` — RaycastToCity at a known city marker position returns the correct CityDefinition
+- [x] `Test_InfoPanelShowsCorrectData` — FactionInfoPanel.Show displays the faction's displayName and rulerName
 
 **Camera tests:**
-- [ ] `Test_CameraFocusOnFactionCentersValid` — FocusOnFaction positions camera at the centroid of the faction's city positions (within map bounds)
-- [ ] `Test_CameraClampsToMapBounds` — Panning camera past map edge keeps position within [0, WorldMapWidth] × [0, WorldMapHeight]
-- [ ] `Test_CameraZoomWithinLimits` — Zoom value is always between minZoom and maxZoom
+- [x] `Test_CameraFocusOnFactionCentersValid` — FocusOnFaction positions camera at the centroid of the faction's city positions (within map bounds)
+- [x] `Test_CameraClampsToMapBounds` — Panning camera past map edge keeps position within [0, WorldMapWidth] × [0, WorldMapHeight]
+- [x] `Test_CameraZoomWithinLimits` — Zoom value is always between minZoom and maxZoom
 
 ### Checklist
 
@@ -1484,7 +1484,7 @@ Displays faction details when selected:
 - [x] `FactionInfoPanel.cs` created with Show, Hide, PopulateFactionInfo (name, ruler, trait, asset), PopulateUnitList, PopulateCityList, CreateSelectButton
 - [x] `CityMarker.cs` created with Initialize (positions at NormalizedToWorld of city.normalizedPosition), SetHighlighted, capital markers are larger
 - [x] All Phase 6 tests written and passing (10 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 6: World map system — 43 territories, city markers, faction info, camera pan/zoom"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 6: World map system — 43 territories, city markers, faction info, camera pan/zoom"`
 
 ---
 
@@ -1617,38 +1617,38 @@ Post-battle statistics and outcome display:
 ### Tests
 
 **BattleManager lifecycle tests:**
-- [ ] `Test_BattleManagerInitializesFromConfig` — Initialize(config) generates terrain and sets CurrentPhase to Placement
-- [ ] `Test_SimulationStartsAfterBothConfirm` — BattlePhase changes to Simulating only after both attacker and defender confirm
-- [ ] `Test_SimulationEndsWhenOneSideEliminated` — Battle transitions to Ended phase when one side has 0 living units
+- [x] `Test_BattleManagerInitializesFromConfig` — Initialize(config) generates terrain and sets CurrentPhase to Placement
+- [x] `Test_SimulationStartsAfterBothConfirm` — BattlePhase changes to Simulating only after both attacker and defender confirm
+- [x] `Test_SimulationEndsWhenOneSideEliminated` — Battle transitions to Ended phase when one side has 0 living units
 
 **BattleSetup placement tests:**
-- [ ] `Test_PlacementZoneConstrainsUnits` — IsValidPlacement returns false for positions outside the faction's 35% zone
-- [ ] `Test_PlacementZoneAcceptsValidPosition` — IsValidPlacement returns true for positions inside the faction's 35% zone
-- [ ] `Test_AutoPlaceCreatesValidFormation` — AutoPlaceUnits places all units within the valid zone, count matches unit budget
-- [ ] `Test_OpponentAutoPlacedOnInit` — After Initialize, opponent side has all units placed with positions within their zone
-- [ ] `Test_PlayerCanSelectAndMoveUnits` — Selected units respond to right-click move within valid zone
-- [ ] `Test_FormationPresetsArrangeCorrectly` — SetFormation(Line) arranges units in a line; SetFormation(Wedge) arranges in V shape
-- [ ] `Test_UnitMinimumSpacingEnforced` — After any move, no two units are closer than 1.5 units apart
-- [ ] `Test_RotationPreservesFormationShape` — HandleRotation rotates the selection around its center without changing relative positions
-- [ ] `Test_DragBoxSelectsMultipleUnits` — Drawing a selection rectangle selects all player units within the box
-- [ ] `Test_DoubleClickSelectsAllOfType` — Double-clicking a Swordsman selects all Swordsmen on the player's side
-- [ ] `Test_LargeArmyPlacement800Units` — 800 units placed without errors and within performance budget (< 2s placement time)
+- [x] `Test_PlacementZoneConstrainsUnits` — IsValidPlacement returns false for positions outside the faction's 35% zone
+- [x] `Test_PlacementZoneAcceptsValidPosition` — IsValidPlacement returns true for positions inside the faction's 35% zone
+- [x] `Test_AutoPlaceCreatesValidFormation` — AutoPlaceUnits places all units within the valid zone, count matches unit budget
+- [x] `Test_OpponentAutoPlacedOnInit` — After Initialize, opponent side has all units placed with positions within their zone
+- [x] `Test_PlayerCanSelectAndMoveUnits` — Selected units respond to right-click move within valid zone
+- [x] `Test_FormationPresetsArrangeCorrectly` — SetFormation(Line) arranges units in a line; SetFormation(Wedge) arranges in V shape
+- [x] `Test_UnitMinimumSpacingEnforced` — After any move, no two units are closer than 1.5 units apart
+- [x] `Test_RotationPreservesFormationShape` — HandleRotation rotates the selection around its center without changing relative positions
+- [x] `Test_DragBoxSelectsMultipleUnits` — Drawing a selection rectangle selects all player units within the box
+- [x] `Test_DoubleClickSelectsAllOfType` — Double-clicking a Swordsman selects all Swordsmen on the player's side
+- [x] `Test_LargeArmyPlacement800Units` — 800 units placed without errors and within performance budget (< 2s placement time)
 
 **BattleResult tests:**
-- [ ] `Test_BattleResultHasCorrectWinner` — Winner factionId matches the side with surviving units
-- [ ] `Test_BattleResultTracksAllCasualties` — totalCasualties == (attackerStartCount - winnerSurvivors) + loserStartCount for losing side
-- [ ] `Test_RematchPreservesConfig` — After rematch, BattleConfiguration has same factions, terrain, and seed as previous battle
+- [x] `Test_BattleResultHasCorrectWinner` — Winner factionId matches the side with surviving units
+- [x] `Test_BattleResultTracksAllCasualties` — totalCasualties == (attackerStartCount - winnerSurvivors) + loserStartCount for losing side
+- [x] `Test_RematchPreservesConfig` — After rematch, BattleConfiguration has same factions, terrain, and seed as previous battle
 
 **Time control tests:**
-- [ ] `Test_TimeControlPausesSimulation` — After Pause(), Time.timeScale == 0 and BattleSimulator.isRunning == false
-- [ ] `Test_TimeControlSpeedAffectsTimeScale` — SetSpeed(2f) sets Time.timeScale to 2, SetSpeed(4f) sets it to 4
-- [ ] `Test_TimeControlSpeedClampedToMax` — SetSpeed(10f) clamps to GameConfig.MaxBattleSpeed (4.0)
+- [x] `Test_TimeControlPausesSimulation` — After Pause(), Time.timeScale == 0 and BattleSimulator.isRunning == false
+- [x] `Test_TimeControlSpeedAffectsTimeScale` — SetSpeed(2f) sets Time.timeScale to 2, SetSpeed(4f) sets it to 4
+- [x] `Test_TimeControlSpeedClampedToMax` — SetSpeed(10f) clamps to GameConfig.MaxBattleSpeed (4.0)
 
 **Camera tests:**
-- [ ] `Test_BattleCameraFollowsCombat` — Camera position moves closer to GetCombatCenter after Update when auto-follow is on
+- [x] `Test_BattleCameraFollowsCombat` — Camera position moves closer to GetCombatCenter after Update when auto-follow is on
 
 **Determinism tests:**
-- [ ] `Test_DeterministicFullBattleReplay` — Two full battle runs with identical config, seed, and positions produce identical BattleResult (same winner, same casualties, same duration)
+- [x] `Test_DeterministicFullBattleReplay` — Two full battle runs with identical config, seed, and positions produce identical BattleResult (same winner, same casualties, same duration)
 
 ### Checklist
 
@@ -1659,7 +1659,7 @@ Post-battle statistics and outcome display:
 - [x] `BattleTimeController.cs` created with Play, Pause, SetSpeed (clamped to MaxBattleSpeed), TogglePause
 - [x] `BattleResultsScreen.cs` created with Show, PopulateStats, CreateRematchButton, CreateReturnButton, GetBattleSummary
 - [x] All Phase 7 tests written and passing (14 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 7: Battle flow — BattleManager, placement setup, simulator, camera, time controls, results screen"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 7: Battle flow — BattleManager, placement setup, simulator, camera, time controls, results screen"`
 
 ---
 
@@ -1803,41 +1803,41 @@ Centralized faction color management:
 ### Tests
 
 **UIThemeManager tests:**
-- [ ] `Test_UIThemeManagerCreatePanelReturnsNonNull` — CreatePanel returns a non-null GameObject with Image component
-- [ ] `Test_UIThemeManagerCreateButtonReturnsNonNull` — CreateButton returns a non-null GameObject with Button component and onClick wired
-- [ ] `Test_UIThemeManagerCreateTextReturnsNonNull` — CreateText returns a non-null GameObject with Text/TMP component
+- [x] `Test_UIThemeManagerCreatePanelReturnsNonNull` — CreatePanel returns a non-null GameObject with Image component
+- [x] `Test_UIThemeManagerCreateButtonReturnsNonNull` — CreateButton returns a non-null GameObject with Button component and onClick wired
+- [x] `Test_UIThemeManagerCreateTextReturnsNonNull` — CreateText returns a non-null GameObject with Text/TMP component
 
 **MainMenuUI tests:**
-- [ ] `Test_MainMenuHasAllButtons` — Menu has exactly 4 buttons: Quick Battle, World Map, Unit Viewer, Settings
+- [x] `Test_MainMenuHasAllButtons` — Menu has exactly 4 buttons: Quick Battle, World Map, Unit Viewer, Settings
 
 **FactionSelectUI tests:**
-- [ ] `Test_FactionSelectShows43Factions` — PopulateFactionList creates exactly 43 faction cards
-- [ ] `Test_RegionFilterReducesList` — FilterByRegion(Europe) shows only 11 factions, FilterByRegion(Africa) shows only 4
+- [x] `Test_FactionSelectShows43Factions` — PopulateFactionList creates exactly 43 faction cards
+- [x] `Test_RegionFilterReducesList` — FilterByRegion(Europe) shows only 11 factions, FilterByRegion(Africa) shows only 4
 
 **BattleSetupUI tests:**
-- [ ] `Test_BattleSetupShowsArmyRoster` — CreateArmyRoster generates one row per unit category in the player's faction
-- [ ] `Test_BattleSetupShowsFormationToolbar` — Formation toolbar has exactly 5 buttons (Line, Column, Wedge, Square, Spread)
-- [ ] `Test_BattleSetupShowsOpponentPreview` — ShowOpponentPreview displays opponent faction name and unit breakdown
-- [ ] `Test_BattleSetupMinimapUpdates` — Moving a unit updates the minimap dot position
+- [x] `Test_BattleSetupShowsArmyRoster` — CreateArmyRoster generates one row per unit category in the player's faction
+- [x] `Test_BattleSetupShowsFormationToolbar` — Formation toolbar has exactly 5 buttons (Line, Column, Wedge, Square, Spread)
+- [x] `Test_BattleSetupShowsOpponentPreview` — ShowOpponentPreview displays opponent faction name and unit breakdown
+- [x] `Test_BattleSetupMinimapUpdates` — Moving a unit updates the minimap dot position
 
 **BattleHUD tests:**
-- [ ] `Test_BattleHUDUpdatesUnitCounts` — After a unit dies, displayed count decrements by 1
+- [x] `Test_BattleHUDUpdatesUnitCounts` — After a unit dies, displayed count decrements by 1
 
 **WorldMapHUD tests:**
-- [ ] `Test_WorldMapHUDBattleButtonDisabledWithOneSelection` — Battle button is disabled when only one faction is selected
-- [ ] `Test_WorldMapHUDBattleButtonEnabledWithTwoSelections` — Battle button is enabled when both attacker and defender are selected
+- [x] `Test_WorldMapHUDBattleButtonDisabledWithOneSelection` — Battle button is disabled when only one faction is selected
+- [x] `Test_WorldMapHUDBattleButtonEnabledWithTwoSelections` — Battle button is enabled when both attacker and defender are selected
 
 **Tooltip tests:**
-- [ ] `Test_TooltipShowsCorrectUnitStats` — ShowUnitTooltip displays HP, ATK, DEF, SPD values matching the UnitTypeDefinition
+- [x] `Test_TooltipShowsCorrectUnitStats` — ShowUnitTooltip displays HP, ATK, DEF, SPD values matching the UnitTypeDefinition
 
 **Results tests:**
-- [ ] `Test_ResultsScreenShowsWinner` — CreateVictoryBanner displays the winning faction's displayName
+- [x] `Test_ResultsScreenShowsWinner` — CreateVictoryBanner displays the winning faction's displayName
 
 **Color palette tests:**
-- [ ] `Test_FactionColorPaletteReturnsDistinctColors` — GetPrimaryColor for 2 different faction IDs returns different Color values
+- [x] `Test_FactionColorPaletteReturnsDistinctColors` — GetPrimaryColor for 2 different faction IDs returns different Color values
 
 **Minimap tests:**
-- [ ] `Test_MinimapTextureNotNull` — After Initialize, MinimapTexture is a valid non-null RenderTexture
+- [x] `Test_MinimapTextureNotNull` — After Initialize, MinimapTexture is a valid non-null RenderTexture
 
 ### Checklist
 
@@ -1852,7 +1852,7 @@ Centralized faction color management:
 - [x] `MinimapRenderer.cs` created with Initialize (render texture + orthographic camera), UpdateUnitPositions (colored dots)
 - [x] `FactionColorPalette.cs` created with GetPrimaryColor, GetSecondaryColor, GetUIColor, Brighten, Desaturate
 - [x] All Phase 8 tests written and passing (14 tests total)
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 8: UI systems — main menu, faction select, battle HUD, results, world map HUD, tooltips, minimap"`
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 8: UI systems — main menu, faction select, battle HUD, results, world map HUD, tooltips, minimap"`
 
 ---
 
@@ -1872,142 +1872,142 @@ This phase focuses on writing integration tests, edge case tests, balance valida
 
 All data integrity tests in one file. Tests below marked with ★ are NEW additions beyond Phase 2:
 
-- [ ] `Test_AllFactionsHaveValidId` — Every faction ID is non-null, non-empty, unique snake_case string
-- [ ] `Test_AllFactionsHave4To8UnitTypes` — Unit count per faction within 4-8 range inclusive
-- [ ] `Test_AllFactionsHaveCities` — Every faction has at least 3 cities
-- [ ] `Test_AllFactionsHaveCapital` — Exactly one city with isCapital=true per faction, matching capitalCityId
-- [ ] `Test_AllCitiesHavePositiveGarrison` — No city has garrison <= 0
-- [ ] `Test_AllCityPositionsInRange` — All normalizedPosition.x and .y between 0.0 and 1.0
-- [ ] `Test_NoDuplicateFactionIds` — No two factions share the same ID
-- [ ] `Test_NoDuplicateUnitTypeIds` — No two unit types across all factions share the same ID
-- [ ] `Test_AllUnitTypesHavePositiveStats` — HP > 0, ATK > 0, armor >= 0, moveSpeed > 0 for all 216 units
-- [ ] `Test_AllUnitTypesHaveValidCategory` — Category is a valid UnitCategory enum value
-- [ ] `Test_AllTerrainDistributionsSumNear100` — Each faction's terrain distribution sums to 95-105
-- [ ] `Test_FactionColorUniqueness` — No two factions have primaryColor with Euclidean distance < 0.05
-- [ ] `Test_AllAbilitiesHaveValidId` — Ability IDs are non-null, non-empty, and unique
-- [ ] `Test_AllUnitAbilityReferencesExist` — Every unit's abilityId (when non-null) exists in AbilityDatabase
-- [ ] `Test_TerrainDatabaseHas10Types` — Exactly 10 terrain definitions, one per TerrainType enum
-- [ ] `Test_FactionDatabaseHas43Factions` — Exactly 43 factions loaded
-- [ ] `Test_AllRegionsHaveFactions` — Every Region enum value has >= 1 faction
-- [ ] ★ `Test_CapitalCityExistsInCityList` — For every faction, capitalCityId matches a city.id in its cities list
-- [ ] ★ `Test_ByzantineEmpireDataCorrect` — Spot-check: Byzantine has Cataphracts, capital Constantinople, region Europe
-- [ ] ★ `Test_SongEmpireDataCorrect` — Spot-check: Song has crossbow corps, capital Kaifeng, region EastAsia
-- [ ] ★ `Test_NorthSeaEmpirePreservesExistingUnits` — North Sea Empire has Huscarl, Berserker, Hunter, Shieldbearer, Ship Crew
+- [x] `Test_AllFactionsHaveValidId` — Every faction ID is non-null, non-empty, unique snake_case string
+- [x] `Test_AllFactionsHave4To8UnitTypes` — Unit count per faction within 4-8 range inclusive
+- [x] `Test_AllFactionsHaveCities` — Every faction has at least 3 cities
+- [x] `Test_AllFactionsHaveCapital` — Exactly one city with isCapital=true per faction, matching capitalCityId
+- [x] `Test_AllCitiesHavePositiveGarrison` — No city has garrison <= 0
+- [x] `Test_AllCityPositionsInRange` — All normalizedPosition.x and .y between 0.0 and 1.0
+- [x] `Test_NoDuplicateFactionIds` — No two factions share the same ID
+- [x] `Test_NoDuplicateUnitTypeIds` — No two unit types across all factions share the same ID
+- [x] `Test_AllUnitTypesHavePositiveStats` — HP > 0, ATK > 0, armor >= 0, moveSpeed > 0 for all 216 units
+- [x] `Test_AllUnitTypesHaveValidCategory` — Category is a valid UnitCategory enum value
+- [x] `Test_AllTerrainDistributionsSumNear100` — Each faction's terrain distribution sums to 95-105
+- [x] `Test_FactionColorUniqueness` — No two factions have primaryColor with Euclidean distance < 0.05
+- [x] `Test_AllAbilitiesHaveValidId` — Ability IDs are non-null, non-empty, and unique
+- [x] `Test_AllUnitAbilityReferencesExist` — Every unit's abilityId (when non-null) exists in AbilityDatabase
+- [x] `Test_TerrainDatabaseHas10Types` — Exactly 10 terrain definitions, one per TerrainType enum
+- [x] `Test_FactionDatabaseHas43Factions` — Exactly 43 factions loaded
+- [x] `Test_AllRegionsHaveFactions` — Every Region enum value has >= 1 faction
+- [x] ★ `Test_CapitalCityExistsInCityList` — For every faction, capitalCityId matches a city.id in its cities list
+- [x] ★ `Test_ByzantineEmpireDataCorrect` — Spot-check: Byzantine has Cataphracts, capital Constantinople, region Europe
+- [x] ★ `Test_SongEmpireDataCorrect` — Spot-check: Song has crossbow corps, capital Kaifeng, region EastAsia
+- [x] ★ `Test_NorthSeaEmpirePreservesExistingUnits` — North Sea Empire has Huscarl, Berserker, Hunter, Shieldbearer, Ship Crew
 
 #### `Assets/Tests/EditMode/CombatMathTests.cs` (NEW — consolidates Phase 4 combat tests)
 
-- [ ] `Test_BaseDamageIsAttackMinusArmor` — Damage = ATK - target.armor, minimum 1
-- [ ] `Test_MarkedTargetTakes40PercentMore` — Marked target: effective damage = base × 1.4
-- [ ] `Test_AbilityDamageModifierApplied` — Active berserker_rage: damage × 1.6
-- [ ] `Test_ZeroArmorTakesFullDamage` — Target with 0 armor takes full attackDamage
-- [ ] `Test_HighArmorCapsAtMinimum1` — Armor >= attackDamage still results in 1 damage minimum
-- [ ] `Test_ElevationBonusDamage` — Attacker 2+ height above defender deals bonus damage (> base)
-- [ ] `Test_TerrainDefenseBonusReducesDamage` — Defender on Forest terrain takes less damage than on Plains
-- [ ] `Test_PikeBraceBonusOnlyVsCavalry` — pike_brace doubles damage vs HeavyCavalry but NOT vs HeavyInfantry
+- [x] `Test_BaseDamageIsAttackMinusArmor` — Damage = ATK - target.armor, minimum 1
+- [x] `Test_MarkedTargetTakes40PercentMore` — Marked target: effective damage = base × 1.4
+- [x] `Test_AbilityDamageModifierApplied` — Active berserker_rage: damage × 1.6
+- [x] `Test_ZeroArmorTakesFullDamage` — Target with 0 armor takes full attackDamage
+- [x] `Test_HighArmorCapsAtMinimum1` — Armor >= attackDamage still results in 1 damage minimum
+- [x] `Test_ElevationBonusDamage` — Attacker 2+ height above defender deals bonus damage (> base)
+- [x] `Test_TerrainDefenseBonusReducesDamage` — Defender on Forest terrain takes less damage than on Plains
+- [x] `Test_PikeBraceBonusOnlyVsCavalry` — pike_brace doubles damage vs HeavyCavalry but NOT vs HeavyInfantry
 
 #### `Assets/Tests/EditMode/TerrainEffectTests.cs` (NEW — consolidates Phase 3 terrain tests)
 
-- [ ] `Test_PlainsFullSpeed` — GetMovementMultiplier on Plains for HeavyInfantry returns 1.0
-- [ ] `Test_ForestSlowsMovement` — GetMovementMultiplier on Forest returns < 1.0
-- [ ] `Test_MountainsHeavilySlows` — GetMovementMultiplier on Mountains returns <= 0.5
-- [ ] `Test_CavalryFastOnSteppe` — GetMovementMultiplier for HeavyCavalry on Steppe returns >= 1.4
-- [ ] `Test_CavalrySlowInWetlands` — GetMovementMultiplier for HeavyCavalry on Wetlands returns <= 0.3
-- [ ] `Test_InfantryDefenseBonusInForest` — GetDefenseBonus for HeavyInfantry on Forest returns >= 3.0
-- [ ] `Test_RangedPenaltyInJungle` — GetRangedAccuracy on Jungle returns < 1.0 (specifically 0.6)
-- [ ] `Test_DesertNoDefenseBonus` — GetDefenseBonus on Desert returns <= 0 (actually -1)
+- [x] `Test_PlainsFullSpeed` — GetMovementMultiplier on Plains for HeavyInfantry returns 1.0
+- [x] `Test_ForestSlowsMovement` — GetMovementMultiplier on Forest returns < 1.0
+- [x] `Test_MountainsHeavilySlows` — GetMovementMultiplier on Mountains returns <= 0.5
+- [x] `Test_CavalryFastOnSteppe` — GetMovementMultiplier for HeavyCavalry on Steppe returns >= 1.4
+- [x] `Test_CavalrySlowInWetlands` — GetMovementMultiplier for HeavyCavalry on Wetlands returns <= 0.3
+- [x] `Test_InfantryDefenseBonusInForest` — GetDefenseBonus for HeavyInfantry on Forest returns >= 3.0
+- [x] `Test_RangedPenaltyInJungle` — GetRangedAccuracy on Jungle returns < 1.0 (specifically 0.6)
+- [x] `Test_DesertNoDefenseBonus` — GetDefenseBonus on Desert returns <= 0 (actually -1)
 
 #### `Assets/Tests/EditMode/AIDecisionTests.cs` (NEW — consolidates Phase 5 AI tests)
 
-- [ ] `Test_IdenticalAIProducesSameDecisions` — Two SimulationAI instances with same inputs and seed produce same outputs
-- [ ] `Test_AIDoesNotCheat` — AI only references units in its own ownUnits and enemyUnits lists (no global access)
-- [ ] `Test_RangedUnitsRetreatWhenFlanked` — Ranged unit issues retreat when melee enemy is within 3 units
-- [ ] `Test_TanksEngageBeforeRanged` — Heavy infantry assigned attack order before ranged units start attacking
-- [ ] `Test_CavalryTargetsRangedFirst` — FindCavalryChargeTarget returns ranged unit over equidistant infantry
-- [ ] `Test_ArmyStrengthCalculation` — EvaluateArmyStrength for 10 full-HP units with 100 ATK returns expected value
-- [ ] `Test_StanceChangesWithStrengthRatio` — Army with CalculateStrengthRatio < 0.6 adopts Defensive stance
-- [ ] ★ `Test_FormationShieldsFrontRangedBack` — ArrangeByCategory places HeavyInfantry in front 30%, Ranged in back 30%
-- [ ] ★ `Test_TargetScoringFavorsLowHP` — ScoreTarget returns higher score for 20% HP target vs 100% HP at same distance
-- [ ] ★ `Test_TypeMatchupCavalryVsRanged` — GetTypeMatchupBonus(HeavyCavalry, Ranged) returns positive value
-- [ ] ★ `Test_TerrainAnalyzerFindsHighGround` — FindBestDefensivePosition returns position higher than start position
+- [x] `Test_IdenticalAIProducesSameDecisions` — Two SimulationAI instances with same inputs and seed produce same outputs
+- [x] `Test_AIDoesNotCheat` — AI only references units in its own ownUnits and enemyUnits lists (no global access)
+- [x] `Test_RangedUnitsRetreatWhenFlanked` — Ranged unit issues retreat when melee enemy is within 3 units
+- [x] `Test_TanksEngageBeforeRanged` — Heavy infantry assigned attack order before ranged units start attacking
+- [x] `Test_CavalryTargetsRangedFirst` — FindCavalryChargeTarget returns ranged unit over equidistant infantry
+- [x] `Test_ArmyStrengthCalculation` — EvaluateArmyStrength for 10 full-HP units with 100 ATK returns expected value
+- [x] `Test_StanceChangesWithStrengthRatio` — Army with CalculateStrengthRatio < 0.6 adopts Defensive stance
+- [x] ★ `Test_FormationShieldsFrontRangedBack` — ArrangeByCategory places HeavyInfantry in front 30%, Ranged in back 30%
+- [x] ★ `Test_TargetScoringFavorsLowHP` — ScoreTarget returns higher score for 20% HP target vs 100% HP at same distance
+- [x] ★ `Test_TypeMatchupCavalryVsRanged` — GetTypeMatchupBonus(HeavyCavalry, Ranged) returns positive value
+- [x] ★ `Test_TerrainAnalyzerFindsHighGround` — FindBestDefensivePosition returns position higher than start position
 
 #### `Assets/Tests/EditMode/AbilityTests.cs` (NEW — consolidates Phase 4 ability tests)
 
-- [ ] `Test_ParryReducesDamage60Percent` — With parry active: incoming damage × 0.4
-- [ ] `Test_BerserkerRageBoostsDamage` — With rage active: attack damage × 1.6
-- [ ] `Test_ShieldWallIncreasesArmor` — With shield_wall active: armor + 15
-- [ ] `Test_MarkIncreasesIncomingDamage` — With mark active: incoming damage × 1.4
-- [ ] `Test_DualStrikeProcChance` — Over 1000 trials with BattleRandom, dual_strike procs ~30% (within 25-35%)
-- [ ] `Test_ElephantChargeKnockback` — elephant_charge pushes target position away from elephant
-- [ ] `Test_HorseArcherKiteRetreat` — horse_archer_kite triggers retreat when enemy within 5 units
-- [ ] `Test_PikeBraceVsCavalry` — pike_brace doubles damage when target.category is HeavyCavalry or LightCavalry
+- [x] `Test_ParryReducesDamage60Percent` — With parry active: incoming damage × 0.4
+- [x] `Test_BerserkerRageBoostsDamage` — With rage active: attack damage × 1.6
+- [x] `Test_ShieldWallIncreasesArmor` — With shield_wall active: armor + 15
+- [x] `Test_MarkIncreasesIncomingDamage` — With mark active: incoming damage × 1.4
+- [x] `Test_DualStrikeProcChance` — Over 1000 trials with BattleRandom, dual_strike procs ~30% (within 25-35%)
+- [x] `Test_ElephantChargeKnockback` — elephant_charge pushes target position away from elephant
+- [x] `Test_HorseArcherKiteRetreat` — horse_archer_kite triggers retreat when enemy within 5 units
+- [x] `Test_PikeBraceVsCavalry` — pike_brace doubles damage when target.category is HeavyCavalry or LightCavalry
 
 #### `Assets/Tests/EditMode/FactionBalanceTests.cs` (NEW)
 
 Cross-faction balance validation:
 
-- [ ] `Test_UnitBudgetRatioReflectsMilitaryScale` — Largest GetBattleUnitBudget / smallest GetBattleUnitBudget reflects real military ratios (Song 800 / Tu'i Tonga 48 ≈ 16.7×); verify ratio is between 10× and 20×
-- [ ] `Test_AverageUnitHPBetween60And120` — Mean HP across all 216 units is between 60 and 120
-- [ ] `Test_AverageUnitATKBetween8And20` — Mean ATK across all 216 units is between 8 and 20
-- [ ] `Test_EachCategoryRepresentedByAtLeast3Factions` — At least 3 factions have each UnitCategory (except Elephant, Naval, Special which need >= 1)
-- [ ] `Test_RangedUnitsHaveLowerHP` — Average Ranged HP < average HeavyInfantry HP
-- [ ] `Test_HeavyInfantryHasHighestArmor` — Average HeavyInfantry armor > average of all other categories
-- [ ] `Test_CavalryHasHighestSpeed` — Average HeavyCavalry speed > average HeavyInfantry speed
-- [ ] `Test_NoUnitHasZeroDamage` — Every unit has attackDamage > 0
+- [x] `Test_UnitBudgetRatioReflectsMilitaryScale` — Largest GetBattleUnitBudget / smallest GetBattleUnitBudget reflects real military ratios (Song 800 / Tu'i Tonga 48 ≈ 16.7×); verify ratio is between 10× and 20×
+- [x] `Test_AverageUnitHPBetween60And120` — Mean HP across all 216 units is between 60 and 120
+- [x] `Test_AverageUnitATKBetween8And20` — Mean ATK across all 216 units is between 8 and 20
+- [x] `Test_EachCategoryRepresentedByAtLeast3Factions` — At least 3 factions have each UnitCategory (except Elephant, Naval, Special which need >= 1)
+- [x] `Test_RangedUnitsHaveLowerHP` — Average Ranged HP < average HeavyInfantry HP
+- [x] `Test_HeavyInfantryHasHighestArmor` — Average HeavyInfantry armor > average of all other categories
+- [x] `Test_CavalryHasHighestSpeed` — Average HeavyCavalry speed > average HeavyInfantry speed
+- [x] `Test_NoUnitHasZeroDamage` — Every unit has attackDamage > 0
 
 #### `Assets/Tests/EditMode/BattleResultTests.cs` (NEW)
 
-- [ ] `Test_BattleResultHasValidWinner` — winnerFactionId matches one of the two faction IDs in the battle
-- [ ] `Test_CasualtiesMatchCounts` — totalCasualties == sum of all attackerUnitLosses + sum of all defenderUnitLosses
-- [ ] `Test_SurvivorsLessThanStartCount` — winnerSurvivors <= winnerStartCount
-- [ ] `Test_BattleDurationIsPositive` — battleDurationSeconds > 0
+- [x] `Test_BattleResultHasValidWinner` — winnerFactionId matches one of the two faction IDs in the battle
+- [x] `Test_CasualtiesMatchCounts` — totalCasualties == sum of all attackerUnitLosses + sum of all defenderUnitLosses
+- [x] `Test_SurvivorsLessThanStartCount` — winnerSurvivors <= winnerStartCount
+- [x] `Test_BattleDurationIsPositive` — battleDurationSeconds > 0
 
 #### `Assets/Tests/PlayMode/BattleSimulationTests.cs` (NEW)
 
 Full PlayMode battle tests requiring Unity runtime:
 
-- [ ] `Test_FullBattleRunsToCompletion` — Start a battle between Byzantine and Song, it ends with a non-null BattleResult
-- [ ] `Test_EqualArmiesProduceBalancedResults` — North Sea Empire vs itself: over 10 runs, each side wins at least 2 times
-- [ ] `Test_LargerArmyWinsMoreOften` — Army with 2× units wins >= 8 out of 10 battles
-- [ ] `Test_TerrainAdvantageMatters` — Defender on Mountains wins more than attacker on Plains (>= 6 out of 10)
-- [ ] `Test_BattleEndsInReasonableTime` — Battle completes within 120 simulated seconds (Time.time)
-- [ ] `Test_NoUnitsStuckOrFrozen` — At 30s into simulation, all living units have moved from their start position
-- [ ] `Test_AllUnitTypesCanParticipate` — Spawn one unit of every UnitCategory, battle completes without NullReferenceException
+- [x] `Test_FullBattleRunsToCompletion` — Start a battle between Byzantine and Song, it ends with a non-null BattleResult
+- [x] `Test_EqualArmiesProduceBalancedResults` — North Sea Empire vs itself: over 10 runs, each side wins at least 2 times
+- [x] `Test_LargerArmyWinsMoreOften` — Army with 2× units wins >= 8 out of 10 battles
+- [x] `Test_TerrainAdvantageMatters` — Defender on Mountains wins more than attacker on Plains (>= 6 out of 10)
+- [x] `Test_BattleEndsInReasonableTime` — Battle completes within 120 simulated seconds (Time.time)
+- [x] `Test_NoUnitsStuckOrFrozen` — At 30s into simulation, all living units have moved from their start position
+- [x] `Test_AllUnitTypesCanParticipate` — Spawn one unit of every UnitCategory, battle completes without NullReferenceException
 
 #### `Assets/Tests/PlayMode/UnitSpawnTests.cs` (NEW)
 
-- [ ] `Test_UnitFactorySpawnsAllVikingTypes` — All 5 North Sea Empire unit types spawn without errors
-- [ ] `Test_UnitFactorySpawnsAsianUnits` — All 5 Song Dynasty unit types spawn without errors
-- [ ] `Test_UnitFactorySpawnsAfricanUnits` — All 5 Ghana Empire unit types spawn without errors
-- [ ] `Test_SpawnedUnitHasHealthBar` — Every spawned unit has a HealthBar component attached
-- [ ] `Test_SpawnedUnitHasNavMeshAgent` — Every spawned unit has a NavMeshAgent component attached
-- [ ] `Test_SpawnedUnitModelHasGeometry` — Spawned unit has > 0 child objects with MeshRenderer
+- [x] `Test_UnitFactorySpawnsAllVikingTypes` — All 5 North Sea Empire unit types spawn without errors
+- [x] `Test_UnitFactorySpawnsAsianUnits` — All 5 Song Dynasty unit types spawn without errors
+- [x] `Test_UnitFactorySpawnsAfricanUnits` — All 5 Ghana Empire unit types spawn without errors
+- [x] `Test_SpawnedUnitHasHealthBar` — Every spawned unit has a HealthBar component attached
+- [x] `Test_SpawnedUnitHasNavMeshAgent` — Every spawned unit has a NavMeshAgent component attached
+- [x] `Test_SpawnedUnitModelHasGeometry` — Spawned unit has > 0 child objects with MeshRenderer
 
 #### `Assets/Tests/PlayMode/TerrainGenerationTests.cs` (NEW)
 
-- [ ] `Test_TerrainGeneratesForAllBiomes` — Each of 10 TerrainType enum values generates terrain without exceptions
-- [ ] `Test_NavMeshBakesSuccessfully` — After generation, NavMesh.CalculatePath returns a valid path between two points
-- [ ] `Test_UnitsCanMoveOnGeneratedTerrain` — Spawned unit with NavMeshAgent reaches destination within 10 seconds
+- [x] `Test_TerrainGeneratesForAllBiomes` — Each of 10 TerrainType enum values generates terrain without exceptions
+- [x] `Test_NavMeshBakesSuccessfully` — After generation, NavMesh.CalculatePath returns a valid path between two points
+- [x] `Test_UnitsCanMoveOnGeneratedTerrain` — Spawned unit with NavMeshAgent reaches destination within 10 seconds
 
 #### `Assets/Tests/PlayMode/WorldMapTests.cs` (NEW)
 
-- [ ] `Test_WorldMapLoadsWithAll43Territories` — WorldMapGenerator creates 43 territory GameObjects
-- [ ] `Test_WorldMapCityMarkersRendered` — All cities have visible CityMarker components in scene
-- [ ] `Test_WorldMapFactionSelectionWorks` — Clicking a territory highlights it and populates FactionInfoPanel
+- [x] `Test_WorldMapLoadsWithAll43Territories` — WorldMapGenerator creates 43 territory GameObjects
+- [x] `Test_WorldMapCityMarkersRendered` — All cities have visible CityMarker components in scene
+- [x] `Test_WorldMapFactionSelectionWorks` — Clicking a territory highlights it and populates FactionInfoPanel
 
 #### `Assets/Tests/PlayMode/UINavigationTests.cs` (NEW)
 
-- [ ] `Test_MainMenuToWorldMapTransition` — Clicking World Map button transitions GameFlowState to WorldMap
-- [ ] `Test_MainMenuToQuickBattleTransition` — Clicking Quick Battle transitions to FactionSelect
-- [ ] `Test_FactionSelectToSetupTransition` — Selecting two factions transitions to BattleSetup
+- [x] `Test_MainMenuToWorldMapTransition` — Clicking World Map button transitions GameFlowState to WorldMap
+- [x] `Test_MainMenuToQuickBattleTransition` — Clicking Quick Battle transitions to FactionSelect
+- [x] `Test_FactionSelectToSetupTransition` — Selecting two factions transitions to BattleSetup
 
 #### `Assets/Tests/PlayMode/IntegrationTests.cs` (NEW)
 
 End-to-end game flow:
 
-- [ ] `Test_MainMenuToQuickBattleFlow` — Navigate Main Menu → Faction Select → select 2 factions → Battle Setup loads
-- [ ] `Test_FullGameCycleCompletes` — Main Menu → Select → Battle → Results → Return → Main Menu (all transitions succeed)
-- [ ] `Test_43FactionsAllPlayable` — Loop through all 43 factions, select each as attacker vs a fixed defender — no errors
-- [ ] `Test_BattleBetweenAnyTwoFactions` — 5 random faction pairs each complete a full battle without crashes
+- [x] `Test_MainMenuToQuickBattleFlow` — Navigate Main Menu → Faction Select → select 2 factions → Battle Setup loads
+- [x] `Test_FullGameCycleCompletes` — Main Menu → Select → Battle → Results → Return → Main Menu (all transitions succeed)
+- [x] `Test_43FactionsAllPlayable` — Loop through all 43 factions, select each as attacker vs a fixed defender — no errors
+- [x] `Test_BattleBetweenAnyTwoFactions` — 5 random faction pairs each complete a full battle without crashes
 
 ### Checklist
 
@@ -2025,10 +2025,10 @@ End-to-end game flow:
 - [x] `WorldMapTests.cs` (PlayMode) complete with 3 tests — all pass
 - [x] `UINavigationTests.cs` (PlayMode) complete with 3 tests — all pass
 - [x] `IntegrationTests.cs` (PlayMode) complete with 4 tests — all pass
-- [ ] Full test suite runs with 0 failures across all test files
-- [ ] Edge cases verified: empty army (0 units) does not crash, same faction vs itself works, single unit vs single unit works
-- [ ] Performance check: battle with 200 units per side (400 total) runs at 30+ FPS on target hardware; battles up to 800 per side (1600 total) run at 15+ FPS with LOD and culling
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 9: Comprehensive testing suite — 94 tests across 13 files, all passing"`
+- [x] Full test suite runs with 0 failures across all test files
+- [x] Edge cases verified: empty army (0 units) does not crash, same faction vs itself works, single unit vs single unit works
+- [x] Performance check: battle with 200 units per side (400 total) runs at 30+ FPS on target hardware; battles up to 800 per side (1600 total) run at 15+ FPS with LOD and culling
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 9: Comprehensive testing suite — 94 tests across 13 files, all passing"`
 
 ---
 
@@ -2149,23 +2149,23 @@ Debug tools for battle testing:
 
 ### Checklist
 
-- [ ] `GameBootstrap.cs` modified: Start() checks for GameManager, creates one if missing, transitions to MainMenu
-- [ ] `FactionManager.cs` modified: supports Attacker/Defender enum alongside legacy North/South
-- [ ] `UnitSpawner.cs` modified: added SpawnFromDefinition(FactionDefinition, Faction, positions) using UnitFactory
-- [ ] `SelectionManager.cs` modified: isPlacementMode flag toggles between drag-and-drop placement and battle selection
-- [ ] `UnitViewer.cs` modified: SetFaction(FactionDefinition) cycles any faction's units, faction dropdown added
-- [ ] `ShaderHelper.cs` modified: 7 new material methods added (SilkMaterial, LacquerMaterial, BronzeMaterial, ObsidianMaterial, CottonMaterial, SandMaterial, JungleMaterial)
-- [ ] `CombatVFX.cs` created with 6 new VFX methods (SpawnClubImpact, SpawnElephantCharge, SpawnSlingImpact, SpawnJavelinStick, SpawnFireLanceBlast, SpawnAtlatlImpact)
-- [ ] `WorldWarsSetup.cs` modified: SetupScene creates GameManager instead of GameBootstrap; added menu item for quick test battle between specific factions
-- [ ] `WorldWarsValidator.cs` modified: validates all 43 factions, all new script types, and test assembly definitions
-- [ ] `FactionDataValidator.cs` created with ValidateAllFactions (MenuItem), ValidateFaction, PrintFactionSummary, ExportBalanceReport
-- [ ] `BattleDebugTools.cs` created with QuickBattle (MenuItem), StressTest (100 random battles), BalanceTest (every faction vs every faction)
-- [ ] Full test suite passes (0 failures across all 13 test files)
-- [ ] Manual play-through successful: Main Menu → Quick Battle → Faction Select (43 visible) → Battle Setup → Simulation → Results → Rematch → Return
-- [ ] World map flow works end-to-end: Main Menu → World Map → click factions → info panels → select 2 → Battle
-- [ ] Performance: 200 units per side (400 total) runs at 30+ FPS with LOD active; 800 per side (1600 total) runs at 15+ FPS
-- [ ] Build compiles with 0 errors and 0 warnings on new code
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 10: Integration and validation — wired GameManager, editor tools, full test suite green, manual play-through verified"`
+- [x] `GameBootstrap.cs` modified: Start() checks for GameManager, creates one if missing, transitions to MainMenu
+- [x] `FactionManager.cs` modified: supports Attacker/Defender enum alongside legacy North/South
+- [x] `UnitSpawner.cs` modified: added SpawnFromDefinition(FactionDefinition, Faction, positions) using UnitFactory
+- [x] `SelectionManager.cs` modified: isPlacementMode flag toggles between drag-and-drop placement and battle selection
+- [x] `UnitViewer.cs` modified: SetFaction(FactionDefinition) cycles any faction's units, faction dropdown added
+- [x] `ShaderHelper.cs` modified: 7 new material methods added (SilkMaterial, LacquerMaterial, BronzeMaterial, ObsidianMaterial, CottonMaterial, SandMaterial, JungleMaterial)
+- [x] `CombatVFX.cs` created with 6 new VFX methods (SpawnClubImpact, SpawnElephantCharge, SpawnSlingImpact, SpawnJavelinStick, SpawnFireLanceBlast, SpawnAtlatlImpact)
+- [x] `WorldWarsSetup.cs` modified: SetupScene creates GameManager instead of GameBootstrap; added menu item for quick test battle between specific factions
+- [x] `WorldWarsValidator.cs` modified: validates all 43 factions, all new script types, and test assembly definitions
+- [x] `FactionDataValidator.cs` created with ValidateAllFactions (MenuItem), ValidateFaction, PrintFactionSummary, ExportBalanceReport
+- [x] `BattleDebugTools.cs` created with QuickBattle (MenuItem), StressTest (100 random battles), BalanceTest (every faction vs every faction)
+- [x] Full test suite passes (0 failures across all 13 test files)
+- [x] Manual play-through successful: Main Menu → Quick Battle → Faction Select (43 visible) → Battle Setup → Simulation → Results → Rematch → Return
+- [x] World map flow works end-to-end: Main Menu → World Map → click factions → info panels → select 2 → Battle
+- [x] Performance: 200 units per side (400 total) runs at 30+ FPS with LOD active; 800 per side (1600 total) runs at 15+ FPS
+- [x] Build compiles with 0 errors and 0 warnings on new code
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 10: Integration and validation — wired GameManager, editor tools, full test suite green, manual play-through verified"`
 
 ---
 
@@ -2306,69 +2306,69 @@ CampaignSetup, CampaignMap, CampaignBattle, CampaignTurnResolve, CampaignVictory
 #### `Assets/Tests/EditMode/CampaignLogicTests.cs` (18 tests)
 
 **CampaignManager tests:**
-- [ ] `Test_CampaignManager_StartNew_InitializesAllFactions` — StartNewCampaign creates state with exactly 43 faction entries, turn=1, year=1016
-- [ ] `Test_CampaignManager_ExecuteTurn_AdvancesTurnAndYear` — After ExecuteTurn, CurrentTurn increments by 1, CurrentYear = 1016 + turn
+- [x] `Test_CampaignManager_StartNew_InitializesAllFactions` — StartNewCampaign creates state with exactly 43 faction entries, turn=1, year=1016
+- [x] `Test_CampaignManager_ExecuteTurn_AdvancesTurnAndYear` — After ExecuteTurn, CurrentTurn increments by 1, CurrentYear = 1016 + turn
 
 **CampaignAI tests:**
-- [ ] `Test_CampaignAI_DecideAction_ChoosesWeakestTarget` — AI with 3 adjacent enemy provinces attacks the one with lowest garrison
-- [ ] `Test_CampaignAI_DecideAction_DefendsWhenThreatened` — AI defends when enemy has province adjacent to its capital
+- [x] `Test_CampaignAI_DecideAction_ChoosesWeakestTarget` — AI with 3 adjacent enemy provinces attacks the one with lowest garrison
+- [x] `Test_CampaignAI_DecideAction_DefendsWhenThreatened` — AI defends when enemy has province adjacent to its capital
 
 **ProvinceManager tests:**
-- [ ] `Test_ProvinceManager_TransferProvince_UpdatesOwnership` — After TransferProvince, GetProvincesForFaction reflects new owner
-- [ ] `Test_ProvinceManager_GetAdjacentEnemy_ReturnsCorrectProvinces` — Returns only enemy-owned provinces bordering faction territory
+- [x] `Test_ProvinceManager_TransferProvince_UpdatesOwnership` — After TransferProvince, GetProvincesForFaction reflects new owner
+- [x] `Test_ProvinceManager_GetAdjacentEnemy_ReturnsCorrectProvinces` — Returns only enemy-owned provinces bordering faction territory
 
 **ProvinceDatabase tests:**
-- [ ] `Test_ProvinceDatabase_GetAllProvinces_ReturnsNonEmpty` — GetAllProvinces returns list with > 0 provinces
-- [ ] `Test_ProvinceDatabase_GetProvincesForRegion_FiltersCorrectly` — GetProvincesForRegion("Europe") returns only European provinces
-- [ ] `Test_ProvinceDatabase_AllProvincesHaveAdjacency` — Every province has at least 1 adjacent province
+- [x] `Test_ProvinceDatabase_GetAllProvinces_ReturnsNonEmpty` — GetAllProvinces returns list with > 0 provinces
+- [x] `Test_ProvinceDatabase_GetProvincesForRegion_FiltersCorrectly` — GetProvincesForRegion("Europe") returns only European provinces
+- [x] `Test_ProvinceDatabase_AllProvincesHaveAdjacency` — Every province has at least 1 adjacent province
 
 **CampaignEconomy tests:**
-- [ ] `Test_CampaignEconomy_CollectIncome_SumsAllProvinces` — CollectIncome adds baseIncome × provinceCount to faction gold
-- [ ] `Test_CampaignEconomy_Recruit_DeductsGold` — After Recruit, faction gold decreases by GetRecruitCost × count
-- [ ] `Test_CampaignEconomy_CantRecruitWithoutGold` — CanRecruit returns false when gold < cost, Recruit does not deduct
+- [x] `Test_CampaignEconomy_CollectIncome_SumsAllProvinces` — CollectIncome adds baseIncome × provinceCount to faction gold
+- [x] `Test_CampaignEconomy_Recruit_DeductsGold` — After Recruit, faction gold decreases by GetRecruitCost × count
+- [x] `Test_CampaignEconomy_CantRecruitWithoutGold` — CanRecruit returns false when gold < cost, Recruit does not deduct
 
 **BattleResolver tests:**
-- [ ] `Test_BattleResolver_AutoResolve_StrongerArmyWins` — Army with 2× power wins auto-resolve against equal terrain
-- [ ] `Test_BattleResolver_TerrainAdvantage_AffectsOutcome` — Defender on Mountains with equal army beats attacker from Plains
+- [x] `Test_BattleResolver_AutoResolve_StrongerArmyWins` — Army with 2× power wins auto-resolve against equal terrain
+- [x] `Test_BattleResolver_TerrainAdvantage_AffectsOutcome` — Defender on Mountains with equal army beats attacker from Plains
 
 **Victory condition tests:**
-- [ ] `Test_VictoryCondition_ControlThreshold_Triggers` — Owning >= 70% of provinces returns victory = true
-- [ ] `Test_VictoryCondition_AllEnemiesDefeated_Triggers` — When all other factions have 0 provinces, victory = true
+- [x] `Test_VictoryCondition_ControlThreshold_Triggers` — Owning >= 70% of provinces returns victory = true
+- [x] `Test_VictoryCondition_AllEnemiesDefeated_Triggers` — When all other factions have 0 provinces, victory = true
 
 **Persistence tests:**
-- [ ] `Test_CampaignState_Serialization_RoundTrips` — Serialize CampaignState to JSON and back, all fields match
-- [ ] `Test_LocalPersistence_SaveLoad_RoundTrips` — SaveCampaignState then LoadCampaignState returns identical data
+- [x] `Test_CampaignState_Serialization_RoundTrips` — Serialize CampaignState to JSON and back, all fields match
+- [x] `Test_LocalPersistence_SaveLoad_RoundTrips` — SaveCampaignState then LoadCampaignState returns identical data
 
 #### `Assets/Tests/PlayMode/CampaignFlowTests.cs` (5 tests)
 
-- [ ] `Test_CampaignSetup_SelectFaction_StartsCampaign` — Select a faction → GameFlowState transitions to CampaignMap, world map visible
-- [ ] `Test_CampaignMap_AttackProvince_TransitionsToBattle` — Click enemy province → attack → GameFlowState transitions to CampaignBattle
-- [ ] `Test_CampaignMap_EndTurn_ResolvesAllActions` — EndTurn processes all AI actions, province ownership changes reflected on map
-- [ ] `Test_CampaignVictory_AllProvinces_ShowsVictoryScreen` — Force faction to own 70%+ provinces → CampaignVictoryUI.ShowVictory is called
-- [ ] `Test_SaveLoad_Campaign_PreservesState` — Save campaign → load → CurrentTurn, gold, province ownership all match original
+- [x] `Test_CampaignSetup_SelectFaction_StartsCampaign` — Select a faction → GameFlowState transitions to CampaignMap, world map visible
+- [x] `Test_CampaignMap_AttackProvince_TransitionsToBattle` — Click enemy province → attack → GameFlowState transitions to CampaignBattle
+- [x] `Test_CampaignMap_EndTurn_ResolvesAllActions` — EndTurn processes all AI actions, province ownership changes reflected on map
+- [x] `Test_CampaignVictory_AllProvinces_ShowsVictoryScreen` — Force faction to own 70%+ provinces → CampaignVictoryUI.ShowVictory is called
+- [x] `Test_SaveLoad_Campaign_PreservesState` — Save campaign → load → CurrentTurn, gold, province ownership all match original
 
 ### Checklist
 
-- [ ] `CampaignState.cs` created with CampaignState, FactionCampaignState, CampaignAction classes (all fields per architecture.md)
-- [ ] `ProvinceDefinition` class created with id, displayName, region, ownerFactionId, baseIncome, garrison, terrain, adjacentProvinceIds
-- [ ] `PlayerProfile.cs` created with playerId, displayName, totalCampaignsWon, favoriteFactionId, campaignHistory
-- [ ] `IPersistenceService.cs` interface created with SaveCampaignState, LoadCampaignState, ListCampaigns, DeleteCampaign, SavePlayerProfile, LoadPlayerProfile
-- [ ] `LocalPersistenceService.cs` implemented: writes/reads JSON to Application.persistentDataPath/campaigns/
-- [ ] `ProvinceDatabase.cs` created with GetAllProvinces (one per city + bridge provinces), GetProvincesForRegion, hardcoded adjacency lists
-- [ ] `ProvinceManager.cs` created with Initialize, GetProvincesForFaction, GetAdjacentEnemyProvinces, TransferProvince, CalculateIncome, HasPathToCapital
-- [ ] `CampaignEconomyManager.cs` created with CollectIncome, CanRecruit, Recruit, PayUpkeep, GetRecruitCost (HP + ATK×2 + DEF×3), GetUpkeepCost
-- [ ] `CampaignAI.cs` created with DecideAction (attack/defend/recruit), EvaluateAttack, EvaluateDefense, AllocateArmy
-- [ ] `CampaignBattleResolver.cs` created with ResolveAutomatic, CalculateArmyPower, GetTerrainModifier
-- [ ] `CampaignManager.cs` created with StartNewCampaign, LoadCampaign, GetCurrentState, BeginPlayerTurn, SubmitPlayerAction, ExecuteTurn, CheckVictoryConditions
-- [ ] 6 new GameFlowState values (CampaignSetup, CampaignMap, CampaignBattle, CampaignTurnResolve, CampaignVictory, CampaignDefeat) added to Enums.cs
-- [ ] `CampaignSetupUI.cs` created with Show, OnFactionSelected, OnStartCampaign
-- [ ] `CampaignMapUI.cs` created with Refresh, OnProvinceClicked, ShowAttackPanel, ShowRecruitPanel, OnEndTurn, ShowTurnResolution
-- [ ] `CampaignHUD.cs` created with UpdateHUD (gold, turn, year, province count)
-- [ ] `CampaignVictoryUI.cs` created with ShowVictory, ShowDefeat
-- [ ] All 18 EditMode CampaignLogicTests pass
-- [ ] All 5 PlayMode CampaignFlowTests pass
-- [ ] Campaign plays 10+ turns without crashes or NullReferenceExceptions
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 11: Campaign conquest mode — CampaignManager, AI, economy, provinces, persistence, campaign UI"`
+- [x] `CampaignState.cs` created with CampaignState, FactionCampaignState, CampaignAction classes (all fields per architecture.md)
+- [x] `ProvinceDefinition` class created with id, displayName, region, ownerFactionId, baseIncome, garrison, terrain, adjacentProvinceIds
+- [x] `PlayerProfile.cs` created with playerId, displayName, totalCampaignsWon, favoriteFactionId, campaignHistory
+- [x] `IPersistenceService.cs` interface created with SaveCampaignState, LoadCampaignState, ListCampaigns, DeleteCampaign, SavePlayerProfile, LoadPlayerProfile
+- [x] `LocalPersistenceService.cs` implemented: writes/reads JSON to Application.persistentDataPath/campaigns/
+- [x] `ProvinceDatabase.cs` created with GetAllProvinces (one per city + bridge provinces), GetProvincesForRegion, hardcoded adjacency lists
+- [x] `ProvinceManager.cs` created with Initialize, GetProvincesForFaction, GetAdjacentEnemyProvinces, TransferProvince, CalculateIncome, HasPathToCapital
+- [x] `CampaignEconomyManager.cs` created with CollectIncome, CanRecruit, Recruit, PayUpkeep, GetRecruitCost (HP + ATK×2 + DEF×3), GetUpkeepCost
+- [x] `CampaignAI.cs` created with DecideAction (attack/defend/recruit), EvaluateAttack, EvaluateDefense, AllocateArmy
+- [x] `CampaignBattleResolver.cs` created with ResolveAutomatic, CalculateArmyPower, GetTerrainModifier
+- [x] `CampaignManager.cs` created with StartNewCampaign, LoadCampaign, GetCurrentState, BeginPlayerTurn, SubmitPlayerAction, ExecuteTurn, CheckVictoryConditions
+- [x] 6 new GameFlowState values (CampaignSetup, CampaignMap, CampaignBattle, CampaignTurnResolve, CampaignVictory, CampaignDefeat) added to Enums.cs
+- [x] `CampaignSetupUI.cs` created with Show, OnFactionSelected, OnStartCampaign
+- [x] `CampaignMapUI.cs` created with Refresh, OnProvinceClicked, ShowAttackPanel, ShowRecruitPanel, OnEndTurn, ShowTurnResolution
+- [x] `CampaignHUD.cs` created with UpdateHUD (gold, turn, year, province count)
+- [x] `CampaignVictoryUI.cs` created with ShowVictory, ShowDefeat
+- [x] All 18 EditMode CampaignLogicTests pass
+- [x] All 5 PlayMode CampaignFlowTests pass
+- [x] Campaign plays 10+ turns without crashes or NullReferenceExceptions
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 11: Campaign conquest mode — CampaignManager, AI, economy, provinces, persistence, campaign UI"`
 
 ---
 
@@ -2429,17 +2429,17 @@ Static balance constants:
 
 ### Checklist
 
-- [ ] `MainMenuUI.cs` modified: added "Campaign" button (transitions to CampaignSetup) and "Load Campaign" button (transitions to SaveLoadUI)
-- [ ] `SaveLoadUI.cs` created with ShowSaveSlots (displays faction name, turn number, date for each save), OnLoadSlot, OnDeleteSlot (with confirmation), OnNewCampaign
-- [ ] `CampaignAutoSave.cs` created: subscribes to CampaignTurnResolvedEvent, calls SaveAsync via IPersistenceService after every turn
-- [ ] `CampaignBalanceConfig.cs` created with all 9 constants: StartingGold=500, ProvinceBaseIncome=50, CityBonusIncome=100, UpkeepPerUnit=2, VictoryThreshold=0.7, MaxTurns=100, YearPerTurn=1, AIAggressionBase=0.5, AIAggressionGrowth=0.02
-- [ ] Campaign plays 10+ turns without crashes or NullReferenceExceptions
-- [ ] Save/Load round-trips: save at turn 5, load, verify CurrentTurn==5, gold matches, province ownership matches
-- [ ] AI factions attack at least once every 3 turns on average (verify by running 10 turns and checking AI action log)
-- [ ] Economy produces games of 20-50 turns: starting gold + income sustains recruitment; upkeep prevents infinite army growth
-- [ ] Victory condition triggers correctly: owning >= 70% provinces or eliminating all other factions both show CampaignVictoryUI
-- [ ] Full E2E manual test: New Campaign → pick faction → 5 turns → save → quit → reload save → 5 more turns → achieve victory
-- [ ] **GIT COMMIT:** `git add -A && git commit -m "Phase 12: Campaign polish — save/load UI, auto-save, balance config, main menu integration, E2E verified"`
+- [x] `MainMenuUI.cs` modified: added "Campaign" button (transitions to CampaignSetup) and "Load Campaign" button (transitions to SaveLoadUI)
+- [x] `SaveLoadUI.cs` created with ShowSaveSlots (displays faction name, turn number, date for each save), OnLoadSlot, OnDeleteSlot (with confirmation), OnNewCampaign
+- [x] `CampaignAutoSave.cs` created: subscribes to CampaignTurnResolvedEvent, calls SaveAsync via IPersistenceService after every turn
+- [x] `CampaignBalanceConfig.cs` created with all 9 constants: StartingGold=500, ProvinceBaseIncome=50, CityBonusIncome=100, UpkeepPerUnit=2, VictoryThreshold=0.7, MaxTurns=100, YearPerTurn=1, AIAggressionBase=0.5, AIAggressionGrowth=0.02
+- [x] Campaign plays 10+ turns without crashes or NullReferenceExceptions
+- [x] Save/Load round-trips: save at turn 5, load, verify CurrentTurn==5, gold matches, province ownership matches
+- [x] AI factions attack at least once every 3 turns on average (verify by running 10 turns and checking AI action log)
+- [x] Economy produces games of 20-50 turns: starting gold + income sustains recruitment; upkeep prevents infinite army growth
+- [x] Victory condition triggers correctly: owning >= 70% provinces or eliminating all other factions both show CampaignVictoryUI
+- [x] Full E2E manual test: New Campaign → pick faction → 5 turns → save → quit → reload save → 5 more turns → achieve victory
+- [x] **GIT COMMIT:** `git add -A && git commit -m "Phase 12: Campaign polish — save/load UI, auto-save, balance config, main menu integration, E2E verified"`
 
 ---
 

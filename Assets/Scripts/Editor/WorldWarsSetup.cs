@@ -36,31 +36,29 @@ public class WorldWarsSetup : Editor
             }
         }
 
-        // Step 3: Create GameBootstrap
-        GameObject bootstrap = new GameObject("GameBootstrap");
-        bootstrap.AddComponent<GameBootstrap>();
+        // GameBootstrap uses [RuntimeInitializeOnLoadMethod] so nothing needs
+        // to be in the scene — it runs automatically on Play.
+        GameObject gmObj = new GameObject("_SceneRoot");
 
-        // Save the scene so Restart works (SceneManager.LoadScene needs a saved scene)
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
 
-        // Add scene to Build Settings so SceneManager.LoadScene works
         AddSceneToBuildSettings(EditorSceneManager.GetActiveScene().path);
 
         Debug.Log("WorldWars: Scene setup complete! Press PLAY to start the game.");
         EditorUtility.DisplayDialog(
             "WorldWars - Ready!",
-            "Scene is set up!\n\n" +
-            "Now press the PLAY button (triangle at top) to start the game.\n\n" +
+            "Scene is set up with GameManager!\n\n" +
+            "Press PLAY to launch into the main menu.\n\n" +
             "Controls:\n" +
-            "- Left-click: Select blue units\n" +
-            "- Right-click ground: Move\n" +
-            "- Right-click enemy: Attack\n" +
+            "- Quick Battle or World Map from main menu\n" +
+            "- Left-click: Select units\n" +
+            "- Right-click: Move / Attack\n" +
             "- WASD: Pan camera\n" +
             "- Scroll: Zoom",
             "Got it!");
 
-        Selection.activeGameObject = bootstrap;
+        Selection.activeGameObject = gmObj;
     }
 
     static void EnsureForwardRenderer()
@@ -157,6 +155,26 @@ public class WorldWarsSetup : Editor
         Debug.Log("WorldWars: Scene added to Build Settings: " + scenePath);
     }
 
+    [MenuItem("WorldWars/Quick Test Battle", false, 10)]
+    static void QuickTestBattle()
+    {
+        AbilityDatabase.Initialize();
+        TerrainDatabase.Initialize();
+        FactionDatabase.Initialize();
+        UnitDatabase.Initialize();
+
+        var a = FactionDatabase.Get("byzantine");
+        var b = FactionDatabase.Get("north_sea_empire");
+        if (a == null || b == null)
+        {
+            Debug.LogError("WorldWars: Could not find test factions.");
+            return;
+        }
+
+        var config = BattleConfiguration.Create(a, b);
+        Debug.Log($"WorldWars: Test battle ready — {a.displayName} ({config.attackerUnitBudget}) vs {b.displayName} ({config.defenderUnitBudget})");
+    }
+
     [MenuItem("WorldWars/How to Play", false, 100)]
     static void HowToPlay()
     {
@@ -164,15 +182,17 @@ public class WorldWarsSetup : Editor
             "WorldWars - How to Play",
             "1. Click 'WorldWars > Setup Scene' in the menu bar\n" +
             "2. Press PLAY\n\n" +
-            "Controls:\n" +
-            "- Left-click: Select your (blue) units\n" +
-            "- Shift+click: Add to selection\n" +
-            "- Drag box: Select multiple units\n" +
-            "- Right-click ground: Move selected units\n" +
-            "- Right-click enemy (red): Attack\n" +
-            "- WASD / Arrows: Pan camera\n" +
-            "- Mouse wheel: Zoom in/out\n\n" +
-            "Goal: Destroy all enemy (red) units!",
+            "Modes:\n" +
+            "- Quick Battle: Pick two factions, position your army, watch AI fight\n" +
+            "- World Map: Browse 43 factions, select combatants\n" +
+            "- Campaign: Conquer the world, turn by turn\n\n" +
+            "Battle Controls:\n" +
+            "- Left-click / drag: Select units\n" +
+            "- Right-click: Move selected units\n" +
+            "- R: Rotate formation\n" +
+            "- F1-F5: Formation presets\n" +
+            "- WASD: Pan camera\n" +
+            "- Scroll: Zoom",
             "OK");
     }
 }

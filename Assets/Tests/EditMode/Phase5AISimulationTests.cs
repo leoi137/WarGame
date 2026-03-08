@@ -165,7 +165,7 @@ namespace WorldWars.Tests.EditMode
                 weak.Add(MakeUnit(Faction.Defender, UnitCategory.HeavyInfantry, Vector3.zero, 50, 5));
 
             var stance = TacticalDecisionMaker.EvaluateStance(weak, strong);
-            Assert.AreNotEqual(TacticalStance.Aggressive, stance,
+            Assert.AreNotEqual(TacticalDecisionMaker.TacticalStance.Aggressive, stance,
                 "Weak army should not be aggressive");
 
             foreach (var u in strong) Cleanup(u);

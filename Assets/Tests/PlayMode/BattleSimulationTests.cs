@@ -55,7 +55,7 @@ namespace WorldWars.Tests.PlayMode
         {
             var terrainDef = TerrainDatabase.Get(TerrainType.Mountains);
             Assert.IsNotNull(terrainDef);
-            Assert.Greater(terrainDef.defenseBonus, 0f);
+            Assert.Greater(terrainDef.infantryDefenseBonus, 0f);
             yield return null;
         }
 

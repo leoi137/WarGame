@@ -24,7 +24,7 @@ public class BattleSetup : MonoBehaviour
 
     void Update()
     {
-        if (config == null) return;
+        if (config == null || IsSpawning) return;
         HandleSelection();
         HandleDragMove();
         HandleRotation();
@@ -32,6 +32,8 @@ public class BattleSetup : MonoBehaviour
         HandleNumberKeys();
         HighlightHoveredUnit(GetUnitUnderCursor());
     }
+
+    public bool IsSpawning { get; private set; }
 
     public void Initialize(BattleConfiguration cfg, Faction? playerSide)
     {
@@ -42,21 +44,78 @@ public class BattleSetup : MonoBehaviour
         CreatePlacementZone(Faction.Attacker, mapSize);
         CreatePlacementZone(Faction.Defender, mapSize);
 
+        StartCoroutine(SpawnUnitsInBatches(playerSide));
+    }
+
+    const int UnitsPerBatch = 30;
+
+    System.Collections.IEnumerator SpawnUnitsInBatches(Faction? playerSide)
+    {
+        IsSpawning = true;
+
         if (playerSide == Faction.Attacker)
         {
-            SpawnPlayerPlacementRoster(config.attackerFaction, Faction.Attacker);
-            AutoPlaceOpponent(config.defenderFaction, Faction.Defender);
+            yield return StartCoroutine(SpawnRosterBatched(config.attackerFaction, Faction.Attacker, true));
+            yield return StartCoroutine(SpawnRosterBatched(config.defenderFaction, Faction.Defender, false));
         }
         else if (playerSide == Faction.Defender)
         {
-            SpawnPlayerPlacementRoster(config.defenderFaction, Faction.Defender);
-            AutoPlaceOpponent(config.attackerFaction, Faction.Attacker);
+            yield return StartCoroutine(SpawnRosterBatched(config.defenderFaction, Faction.Defender, true));
+            yield return StartCoroutine(SpawnRosterBatched(config.attackerFaction, Faction.Attacker, false));
         }
         else
         {
-            AutoPlaceOpponent(config.attackerFaction, Faction.Attacker);
-            AutoPlaceOpponent(config.defenderFaction, Faction.Defender);
+            yield return StartCoroutine(SpawnRosterBatched(config.attackerFaction, Faction.Attacker, false));
+            yield return StartCoroutine(SpawnRosterBatched(config.defenderFaction, Faction.Defender, false));
         }
+
+        IsSpawning = false;
+    }
+
+    System.Collections.IEnumerator SpawnRosterBatched(FactionDefinition faction, Faction side, bool isPlayer)
+    {
+        if (faction == null || faction.unitTypes == null || faction.unitTypes.Count == 0) yield break;
+
+        int budget = side == Faction.Attacker ? config.attackerUnitBudget : config.defenderUnitBudget;
+        var roster = BuildUnitRoster(faction, budget);
+        int totalCount = 0;
+        foreach (var (_, c) in roster) totalCount += c;
+
+        Vector3 center = GetPlacementCenter(side);
+        Vector3 facing = GetFacing(side);
+        var positions = FormationController.GetFormationPositions(totalCount, center, facing, FormationType.Line, 2f);
+
+        var spawnedUnits = new List<Unit>();
+        int idx = 0;
+        int spawnedThisBatch = 0;
+
+        foreach (var (typeDef, count) in roster)
+        {
+            for (int k = 0; k < count && idx < positions.Length; k++, idx++)
+            {
+                Vector3 pos = positions[idx];
+                if (Terrain.activeTerrain != null)
+                    pos.y = Terrain.activeTerrain.SampleHeight(pos);
+
+                Unit unit = UnitFactory.CreateUnit(typeDef, faction, side, pos, Quaternion.LookRotation(facing));
+                spawnedUnits.Add(unit);
+                if (isPlayer) playerUnits.Add(unit);
+
+                if (side == Faction.Attacker)
+                    BattleManager.Instance?.RegisterAttackerUnit(unit);
+                else
+                    BattleManager.Instance?.RegisterDefenderUnit(unit);
+
+                spawnedThisBatch++;
+                if (spawnedThisBatch >= UnitsPerBatch)
+                {
+                    spawnedThisBatch = 0;
+                    yield return null;
+                }
+            }
+        }
+
+        FormationController.ArrangeByCategory(spawnedUnits, center, facing);
     }
 
     public void SpawnPlayerPlacementRoster(FactionDefinition faction, Faction side)
@@ -387,12 +446,14 @@ public class BattleSetup : MonoBehaviour
 
     public void ConfirmPlacement()
     {
+        if (IsSpawning) return;
         ClearSelection();
         StartCoroutine(CountdownThenStart());
     }
 
     System.Collections.IEnumerator CountdownThenStart()
     {
+        while (IsSpawning) yield return null;
         yield return new WaitForSecondsRealtime(GameConfig.CountdownDuration);
         if (BattleManager.Instance != null)
             BattleManager.Instance.StartSimulation();

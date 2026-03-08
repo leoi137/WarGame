@@ -63,9 +63,19 @@ namespace WorldWars.Tests.EditMode
         [Test]
         public void Test_IdenticalAIProducesSameDecisions()
         {
-            var stance1 = TacticalDecisionMaker.EvaluateStance(1000f, 1000f);
-            var stance2 = TacticalDecisionMaker.EvaluateStance(1000f, 1000f);
+            var units = new List<Unit>();
+            for (int i = 0; i < 5; i++)
+                units.Add(MakeUnit(new Vector3(i, 0, 0), UnitCategory.HeavyInfantry, Faction.Attacker, 100f, 10f));
+            var enemies = new List<Unit>();
+            for (int i = 0; i < 5; i++)
+                enemies.Add(MakeUnit(new Vector3(i + 20, 0, 0), UnitCategory.HeavyInfantry, Faction.Defender, 100f, 10f));
+
+            var stance1 = TacticalDecisionMaker.EvaluateStance(units, enemies);
+            var stance2 = TacticalDecisionMaker.EvaluateStance(units, enemies);
             Assert.AreEqual(stance1, stance2, "Same inputs should produce same tactical stance");
+
+            Cleanup(units);
+            Cleanup(enemies);
         }
 
         [Test]
@@ -101,19 +111,31 @@ namespace WorldWars.Tests.EditMode
             var units = new List<Unit>();
             for (int i = 0; i < 10; i++)
                 units.Add(MakeUnit(new Vector3(i, 0, 0), UnitCategory.HeavyInfantry, Faction.Attacker, 100f, 100f));
+            var enemy = new List<Unit> { MakeUnit(new Vector3(50, 0, 0), UnitCategory.HeavyInfantry, Faction.Defender, 10f, 1f) };
 
-            float strength = TacticalDecisionMaker.EvaluateArmyStrength(units);
-            Assert.Greater(strength, 0f, "Army strength should be positive");
+            float ratio = TacticalDecisionMaker.CalculateStrengthRatio(units, enemy);
+            Assert.Greater(ratio, 1f, "Army with 10 strong units vs 1 weak should have ratio > 1");
 
             Cleanup(units);
+            Cleanup(enemy);
         }
 
         [Test]
         public void Test_StanceChangesWithStrengthRatio()
         {
-            var stance = TacticalDecisionMaker.EvaluateStance(300f, 1000f);
-            Assert.AreEqual(TacticalDecisionMaker.TacticalStance.Defensive, stance,
-                "Army with < 0.6 strength ratio should adopt Defensive stance");
+            var weak = new List<Unit>();
+            for (int i = 0; i < 3; i++)
+                weak.Add(MakeUnit(new Vector3(i, 0, 0), UnitCategory.HeavyInfantry, Faction.Attacker, 50f, 5f));
+            var strong = new List<Unit>();
+            for (int i = 0; i < 10; i++)
+                strong.Add(MakeUnit(new Vector3(i + 20, 0, 0), UnitCategory.HeavyInfantry, Faction.Defender, 100f, 15f));
+
+            var stance = TacticalDecisionMaker.EvaluateStance(weak, strong);
+            Assert.AreNotEqual(TacticalDecisionMaker.TacticalStance.Aggressive, stance,
+                "Weak army should not adopt Aggressive stance");
+
+            Cleanup(weak);
+            Cleanup(strong);
         }
 
         [Test]
@@ -130,7 +152,7 @@ namespace WorldWars.Tests.EditMode
             all.AddRange(heavyInf);
             all.AddRange(ranged);
 
-            FormationController.ArrangeByCategory(all, Vector3.zero, Vector3.forward, 150);
+            FormationController.ArrangeByCategory(all, Vector3.zero, Vector3.forward);
 
             float avgHeavyZ = heavyInf.Average(u => u.transform.position.z);
             float avgRangedZ = ranged.Average(u => u.transform.position.z);
@@ -164,7 +186,7 @@ namespace WorldWars.Tests.EditMode
         public void Test_TerrainAnalyzerFindsHighGround()
         {
             Vector3 start = new Vector3(50f, 0f, 50f);
-            Vector3 defensive = TerrainAnalyzer.FindBestDefensivePosition(start, 100);
+            Vector3 defensive = TerrainAnalyzer.FindBestDefensivePosition(start, 100f, UnitCategory.HeavyInfantry);
             Assert.IsNotNull(defensive);
         }
 

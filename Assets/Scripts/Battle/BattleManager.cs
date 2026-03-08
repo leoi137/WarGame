@@ -121,7 +121,7 @@ public class BattleManager : MonoBehaviour
         attackerAI.Initialize(Faction.Attacker, attackerUnits, defenderUnits, spatialGrid, Config.mapSize);
         defenderAI.Initialize(Faction.Defender, defenderUnits, attackerUnits, spatialGrid, Config.mapSize);
 
-        battleSimulator?.Start(attackerUnits, defenderUnits, attackerAI, defenderAI);
+        battleSimulator?.BeginSimulation(attackerUnits, defenderUnits, attackerAI, defenderAI);
         timeController?.Play();
         battleCamera?.SetAutoFollow(true);
     }
@@ -133,7 +133,7 @@ public class BattleManager : MonoBehaviour
 
     public void ResumeSimulation()
     {
-        timeController?.Resume();
+        timeController?.Play();
     }
 
     public void SetSimulationSpeed(float speed)

@@ -158,6 +158,19 @@ public static class UIThemeManager
 
         canvasObj.AddComponent<GraphicRaycaster>();
 
+        EnsureEventSystem();
+
         return canvas;
+    }
+
+    /// <summary>
+    /// Guarantees an EventSystem exists in the scene so UI interactions work.
+    /// </summary>
+    static void EnsureEventSystem()
+    {
+        if (Object.FindAnyObjectByType<UnityEngine.EventSystems.EventSystem>() != null) return;
+        var es = new GameObject("EventSystem");
+        es.AddComponent<UnityEngine.EventSystems.EventSystem>();
+        es.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
     }
 }

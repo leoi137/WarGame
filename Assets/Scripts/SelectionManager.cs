@@ -2,18 +2,25 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
+/// <summary>
+/// Handles click and drag-box unit selection.
+/// In placement mode, selection drives pre-battle positioning instead of combat orders.
+/// </summary>
 public class SelectionManager : MonoBehaviour
 {
     public static SelectionManager Instance { get; set; }
 
     public List<Unit> selectedUnits = new List<Unit>();
 
-    // Drag box
+    /// <summary>
+    /// When true, drag-select is used for pre-battle placement instead of combat commands.
+    /// </summary>
+    public bool isPlacementMode;
+
     bool isDragging;
     Vector2 dragStartScreen;
     float dragThreshold = 10f;
 
-    // UI for drag box
     GUIStyle dragBoxStyle;
 
     void Awake()

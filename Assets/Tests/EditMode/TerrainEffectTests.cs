@@ -57,7 +57,7 @@ namespace WorldWars.Tests.EditMode
         {
             var def = TerrainDatabase.Get(TerrainType.Forest);
             Assert.IsNotNull(def);
-            Assert.GreaterOrEqual(def.defenseBonus, 3.0f, "Forest should provide defense bonus >= 3");
+            Assert.GreaterOrEqual(def.infantryDefenseBonus, 3.0f, "Forest should provide defense bonus >= 3");
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace WorldWars.Tests.EditMode
         {
             var def = TerrainDatabase.Get(TerrainType.Jungle);
             Assert.IsNotNull(def);
-            Assert.Less(def.rangedAccuracy, 1.0f, "Jungle should penalize ranged accuracy");
+            Assert.Less(def.rangedAccuracyModifier, 1.0f, "Jungle should penalize ranged accuracy");
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace WorldWars.Tests.EditMode
         {
             var def = TerrainDatabase.Get(TerrainType.Desert);
             Assert.IsNotNull(def);
-            Assert.LessOrEqual(def.defenseBonus, 0f, "Desert should provide no defense bonus");
+            Assert.LessOrEqual(def.infantryDefenseBonus, 0f, "Desert should provide no defense bonus");
         }
     }
 }

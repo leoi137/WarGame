@@ -24,8 +24,20 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
 
-        TransitionTo(GameFlowState.MainMenu);
+    private void Start()
+    {
+        // Databases must be initialized before any state transition creates UI.
+        // GameBootstrap.Start() handles this, but if GameManager is standalone,
+        // ensure databases are ready.
+        AbilityDatabase.Initialize();
+        TerrainDatabase.Initialize();
+        FactionDatabase.Initialize();
+        UnitDatabase.Initialize();
+
+        if (CurrentState == GameFlowState.MainMenu)
+            InitializeState(GameFlowState.MainMenu);
     }
 
     public void TransitionTo(GameFlowState newState)
@@ -76,34 +88,157 @@ public class GameManager : MonoBehaviour
 
     private void CleanupState(GameFlowState state)
     {
-        // Intentionally lean for now. State-specific managers should handle local cleanup.
-        // We only clear transient global event subscriptions at major state boundaries.
-        if (state is GameFlowState.BattleResults or GameFlowState.CampaignVictory or GameFlowState.CampaignDefeat)
+        switch (state)
         {
-            EventBus.Clear();
+            case GameFlowState.MainMenu:
+                DestroyUI<MainMenuUI>(ui => ui.Hide());
+                break;
+            case GameFlowState.FactionSelect:
+                DestroyUI<FactionSelectUI>(ui => ui.Hide());
+                break;
+            case GameFlowState.WorldMap:
+                DestroyUI<WorldMapHUD>(ui => ui.Hide());
+                break;
+            case GameFlowState.BattleSetup:
+                DestroyUI<BattleSetupUI>(ui => ui.Hide());
+                break;
+            case GameFlowState.BattleSimulation:
+                DestroyUI<BattleHUD>();
+                DestroyUI<BattleManager>();
+                break;
+            case GameFlowState.BattleResults:
+                DestroyUI<BattleResultsUI>(ui => ui.Hide());
+                EventBus.Clear();
+                break;
+            case GameFlowState.CampaignSetup:
+                DestroyUI<CampaignSetupUI>(ui => ui.Hide());
+                break;
+            case GameFlowState.CampaignMap:
+                DestroyUI<CampaignMapUI>(ui => ui.Hide());
+                DestroyUI<CampaignHUD>(ui => ui.Hide());
+                break;
+            case GameFlowState.CampaignBattle:
+                DestroyUI<BattleHUD>();
+                DestroyUI<BattleManager>();
+                break;
+            case GameFlowState.CampaignTurnResolve:
+                break;
+            case GameFlowState.CampaignVictory:
+            case GameFlowState.CampaignDefeat:
+                DestroyUI<CampaignVictoryUI>(ui => ui.Hide());
+                EventBus.Clear();
+                break;
         }
+    }
+
+    private void DestroyUI<T>(System.Action<T> cleanup = null) where T : MonoBehaviour
+    {
+        var ui = FindFirstObjectByType<T>();
+        if (ui == null) return;
+        cleanup?.Invoke(ui);
+        Destroy(ui.gameObject);
     }
 
     private void InitializeState(GameFlowState state)
     {
-        // Bootstrapping points for state-specific managers.
         switch (state)
         {
             case GameFlowState.MainMenu:
+                SpawnUI<MainMenuUI>().Show();
+                break;
+
             case GameFlowState.WorldMap:
+                SpawnUI<WorldMapManager>();
+                SpawnUI<WorldMapHUD>().Show();
+                break;
+
             case GameFlowState.FactionSelect:
+                SpawnUI<FactionSelectUI>().Show(true, attacker =>
+                {
+                    SelectedAttacker = attacker;
+                    FindFirstObjectByType<FactionSelectUI>()?.Show(false, defender =>
+                    {
+                        SelectedDefender = defender;
+                        StartQuickBattle(attacker, defender);
+                    });
+                });
+                break;
+
             case GameFlowState.BattleSetup:
+                if (CurrentBattle != null)
+                {
+                    var setupUI = SpawnUI<BattleSetupUI>();
+                    setupUI.Show(CurrentBattle, CurrentBattle.playerSide ?? Faction.Attacker);
+                }
+                break;
+
             case GameFlowState.BattleSimulation:
+                var bmObj = new GameObject("BattleManager");
+                var bm = bmObj.AddComponent<BattleManager>();
+                if (CurrentBattle != null)
+                {
+                    bm.Initialize(CurrentBattle, CurrentBattle.playerSide);
+                    var hud = SpawnUI<BattleHUD>();
+                    hud.Initialize(CurrentBattle);
+                }
+                break;
+
             case GameFlowState.BattleResults:
+                SpawnUI<BattleResultsUI>().Show(LastBattleResult, SelectedAttacker, SelectedDefender);
+                break;
+
             case GameFlowState.CampaignSetup:
+                SpawnUI<CampaignSetupUI>().Show();
+                break;
+
             case GameFlowState.CampaignMap:
+                if (CampaignManager.Instance != null)
+                {
+                    var mapUI = SpawnUI<CampaignMapUI>();
+                    mapUI.Show(CampaignManager.Instance.currentState, CampaignManager.Instance.provinceManager);
+                    SpawnUI<CampaignHUD>().Show();
+                }
+                break;
+
             case GameFlowState.CampaignBattle:
+                var cbmObj = new GameObject("BattleManager");
+                var cbm = cbmObj.AddComponent<BattleManager>();
+                if (CurrentBattle != null)
+                {
+                    cbm.Initialize(CurrentBattle, CurrentBattle.playerSide);
+                    SpawnUI<BattleHUD>().Initialize(CurrentBattle);
+                }
+                break;
+
             case GameFlowState.CampaignTurnResolve:
+                break;
+
             case GameFlowState.CampaignVictory:
+                if (CampaignManager.Instance != null)
+                    SpawnUI<CampaignVictoryUI>().ShowVictory(CampaignManager.Instance.currentState);
+                break;
+
             case GameFlowState.CampaignDefeat:
+                if (CampaignManager.Instance != null)
+                    SpawnUI<CampaignVictoryUI>().ShowDefeat(CampaignManager.Instance.currentState);
+                break;
+
             default:
                 break;
         }
+    }
+
+    /// <summary>
+    /// Creates a temporary GameObject with the given MonoBehaviour component.
+    /// Used for procedural UI screens that manage their own lifecycle.
+    /// </summary>
+    private T SpawnUI<T>() where T : MonoBehaviour
+    {
+        var existing = FindFirstObjectByType<T>();
+        if (existing != null) return existing;
+
+        var go = new GameObject(typeof(T).Name);
+        return go.AddComponent<T>();
     }
 
     private void OnDestroy()

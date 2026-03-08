@@ -19,7 +19,7 @@ public class BattleSimulator : MonoBehaviour
         ProcessFrame();
     }
 
-    public void Start(List<Unit> attackerUnits, List<Unit> defenderUnits, SimulationAI aiA, SimulationAI aiB)
+    public void BeginSimulation(List<Unit> attackerUnits, List<Unit> defenderUnits, SimulationAI aiA, SimulationAI aiB)
     {
         attackers = attackerUnits ?? new List<Unit>();
         defenders = defenderUnits ?? new List<Unit>();
