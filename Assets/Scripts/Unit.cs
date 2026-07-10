@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public enum Faction { North, South }
 public enum UnitType { Swordsman, Archer, Berserker, Shieldbearer }
 
 public class Unit : MonoBehaviour
@@ -9,6 +9,8 @@ public class Unit : MonoBehaviour
     [Header("Identity")]
     public Faction faction;
     public UnitType unitType;
+    public UnitTypeDefinition typeDefinition;
+    public FactionDefinition factionDefinition;
 
     [Header("Stats")]
     public float maxHealth = 100f;
@@ -27,6 +29,11 @@ public class Unit : MonoBehaviour
     public float rageDuration = 6f;
     public float rageTimer;
     public float shieldWallArmor = 15f;
+    public Dictionary<string, float> activeEffects = new();
+    public Dictionary<string, float> cooldowns = new();
+
+    public string UnitTypeId => typeDefinition?.id ?? unitType.ToString().ToLower();
+    public bool HasEffect(string effectId) => activeEffects.ContainsKey(effectId);
 
     [Header("State")]
     public bool isSelected;
@@ -188,7 +195,11 @@ public class Unit : MonoBehaviour
         }
     }
 
-    // ========== SWORDSMAN ==========
+    internal void BuildLegacySwordsmanModel(Color primary, Color secondary) => BuildSwordsmanModel(primary, secondary);
+    internal void BuildLegacyArcherModel(Color primary, Color secondary) => BuildArcherModel(primary, secondary);
+    internal void BuildLegacyBerserkerModel(Color primary, Color secondary) => BuildBerserkerModel(primary, secondary);
+    internal void BuildLegacyShieldbearerModel(Color primary, Color secondary) => BuildShieldbearerModel(primary, secondary);
+
     void BuildSwordsmanModel(Color primary, Color secondary)
     {
         // --- TORSO on waist pivot ---
@@ -772,6 +783,12 @@ public class Unit : MonoBehaviour
     {
         return CreatePart(PrimitiveType.Cube, partName, transform, localPos, scale,
             ShaderHelper.CreateMaterial(color));
+    }
+
+    public void EnsureSelectionRingAndShadow()
+    {
+        if (selectionRing == null) CreateSelectionRing();
+        if (transform.Find("Shadow") == null) CreateShadow();
     }
 
     void CreateSelectionRing()

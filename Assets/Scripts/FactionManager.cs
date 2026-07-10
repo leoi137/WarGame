@@ -2,12 +2,16 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// Tracks living units per side and publishes defeat events.
+/// Supports both Attacker/Defender (new) and North/South (legacy) naming.
+/// </summary>
 public class FactionManager : MonoBehaviour
 {
     public static FactionManager Instance { get; set; }
 
-    public List<Unit> northUnits = new List<Unit>();
-    public List<Unit> southUnits = new List<Unit>();
+    public List<Unit> attackerUnits = new List<Unit>();
+    public List<Unit> defenderUnits = new List<Unit>();
 
     public System.Action<Faction> OnFactionDefeated;
 
@@ -18,46 +22,43 @@ public class FactionManager : MonoBehaviour
 
     public void RegisterUnit(Unit unit)
     {
-        if (unit.faction == Faction.North)
-            northUnits.Add(unit);
+        if (IsAttackerSide(unit.faction))
+            attackerUnits.Add(unit);
         else
-            southUnits.Add(unit);
+            defenderUnits.Add(unit);
     }
 
     public void OnUnitDied(Unit unit)
     {
-        if (unit.faction == Faction.North)
-            northUnits.Remove(unit);
+        if (IsAttackerSide(unit.faction))
+            attackerUnits.Remove(unit);
         else
-            southUnits.Remove(unit);
+            defenderUnits.Remove(unit);
 
-        // Check win condition
-        northUnits.RemoveAll(u => u == null || u.isDead);
-        southUnits.RemoveAll(u => u == null || u.isDead);
+        attackerUnits.RemoveAll(u => u == null || u.isDead);
+        defenderUnits.RemoveAll(u => u == null || u.isDead);
 
-        if (northUnits.Count == 0)
-        {
-            OnFactionDefeated?.Invoke(Faction.North);
-        }
-        else if (southUnits.Count == 0)
-        {
-            OnFactionDefeated?.Invoke(Faction.South);
-        }
+        if (attackerUnits.Count == 0)
+            OnFactionDefeated?.Invoke(unit.faction);
+        else if (defenderUnits.Count == 0)
+            OnFactionDefeated?.Invoke(unit.faction);
     }
 
     public List<Unit> GetUnitsForFaction(Faction faction)
     {
-        if (faction == Faction.North)
-            return northUnits.Where(u => u != null && !u.isDead).ToList();
-        else
-            return southUnits.Where(u => u != null && !u.isDead).ToList();
+        var list = IsAttackerSide(faction) ? attackerUnits : defenderUnits;
+        return list.Where(u => u != null && !u.isDead).ToList();
     }
 
     public int GetLivingCount(Faction faction)
     {
-        if (faction == Faction.North)
-            return northUnits.Count(u => u != null && !u.isDead);
-        else
-            return southUnits.Count(u => u != null && !u.isDead);
+        var list = IsAttackerSide(faction) ? attackerUnits : defenderUnits;
+        return list.Count(u => u != null && !u.isDead);
     }
+
+    /// <summary>
+    /// Maps both new (Attacker) and legacy (North) identifiers to the attacker side.
+    /// </summary>
+    static bool IsAttackerSide(Faction f) =>
+        f == Faction.Attacker || f == Faction.North;
 }

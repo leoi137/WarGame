@@ -3,6 +3,10 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.AI;
 
+/// <summary>
+/// Interactive 3D unit viewer. Supports both legacy UnitType cycling and
+/// data-driven FactionDefinition browsing via SetFaction().
+/// </summary>
 public class UnitViewer : MonoBehaviour
 {
     public static UnitViewer Instance { get; private set; }
@@ -14,6 +18,9 @@ public class UnitViewer : MonoBehaviour
     GameObject currentUnit;
     UnitAnimator currentAnimator;
     Unit currentUnitScript;
+
+    FactionDefinition currentFactionDef;
+    int currentFactionUnitIndex;
 
     Camera viewerCamera;
     GameObject pedestal;
@@ -371,7 +378,47 @@ public class UnitViewer : MonoBehaviour
     void ToggleFaction()
     {
         currentFaction = (currentFaction == Faction.North) ? Faction.South : Faction.North;
+        currentFactionDef = null;
         SpawnCurrentUnit();
+    }
+
+    /// <summary>
+    /// Switch to viewing any faction's units via data-driven definitions.
+    /// </summary>
+    public void SetFaction(FactionDefinition faction)
+    {
+        if (faction == null || faction.unitTypes == null || faction.unitTypes.Count == 0) return;
+        currentFactionDef = faction;
+        currentFactionUnitIndex = 0;
+        SpawnFactionUnit();
+    }
+
+    void SpawnFactionUnit()
+    {
+        if (currentFactionDef == null) return;
+        if (currentUnit != null) Destroy(currentUnit);
+
+        var typeDef = currentFactionDef.unitTypes[currentFactionUnitIndex];
+        var unit = UnitFactory.CreateUnit(typeDef, currentFactionDef, Faction.Attacker, Vector3.zero, Quaternion.Euler(0, 180f, 0));
+        if (unit == null) return;
+
+        currentUnit = unit.gameObject;
+        currentUnitScript = unit;
+        currentUnitScript.useUnscaledTime = true;
+
+        currentAnimator = currentUnit.GetComponent<UnitAnimator>();
+        if (currentAnimator != null) currentAnimator.useUnscaledTime = true;
+
+        UpdateUI();
+    }
+
+    /// <summary>Cycle through the current data-driven faction's unit list.</summary>
+    public void CycleFactionUnit(int direction)
+    {
+        if (currentFactionDef == null) { CycleUnit(direction); return; }
+        int count = currentFactionDef.unitTypes.Count;
+        currentFactionUnitIndex = (currentFactionUnitIndex + direction + count) % count;
+        SpawnFactionUnit();
     }
 
     // ========== ANIMATION TRIGGERS ==========

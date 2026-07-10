@@ -493,8 +493,51 @@ After building the model, `UnitSpawner.cs` calls `WireAnimatorPivots()` to pass 
 
 ---
 
+## Performance at 20× Unit Scale
+
+With army sizes ranging from 48 to 800 units per side (up to 1600 total), the procedural unit system must scale efficiently. Key optimizations:
+
+### LOD System (UnitLODSystem.cs)
+
+Four detail levels based on distance from camera:
+
+| LOD Level | Distance | Meshes | Features | Tri Budget |
+|-----------|----------|--------|----------|------------|
+| **Full** | < 60m | All parts (14+ meshes) | Health bar, trails, normal maps, face details | ~150 tris |
+| **Simplified** | 60-120m | 3 merged meshes (body+weapon+head) | No health bar, no trails, no normal maps | ~30 tris |
+| **Billboard** | 120-200m | 1 quad | Faction-colored textured quad facing camera | 2 tris |
+| **Culled** | > 200m | 0 | Renderers disabled, logic only | 0 tris |
+
+Maximum 80 units at Full LOD regardless of distance (closest 80 get priority).
+
+### Mesh Caching
+
+`Unit.InitMeshCache()` generates each body-part mesh once and reuses it across all units of the same type. With 800 units of 5 types, this means only 5× mesh generation instead of 800×.
+
+### GPU Instancing
+
+For Simplified and Billboard LOD levels, identical meshes + materials use `Graphics.DrawMeshInstanced` to batch-render hundreds of units in a single draw call.
+
+### Spatial Partitioning (SpatialGrid.cs)
+
+A cell-based spatial grid (cell size = 10 units) replaces O(n²) nearest-enemy lookups with O(1) amortized queries. Essential for AI decision-making and combat targeting at 1600-unit battles.
+
+### Flocking Movement
+
+For battles > 200 units/side, `UnitMovement` switches from NavMeshAgent (expensive per-agent pathfinding) to lightweight Boids-style flocking: seek target, avoid allies (separation), maintain formation (cohesion), align facing (alignment).
+
+### VFX Budgets at Scale
+
+- Health bars: hidden beyond 40m from camera
+- Weapon trails: only on 20 nearest attacking units
+- Damage popups: pooled, max 30 active simultaneously
+- Combat VFX (sparks, dust): only for Full LOD units
+
+---
+
 ## Version History
 
+- **v0.4** -- 20× unit scale: LOD system, spatial partitioning, flocking movement, GPU instancing. Army sizes 48-800 per side. Interactive placement system with formation presets.
 - **v0.3** -- Premium graphics overhaul: 14-joint skeleton, PBR materials, forward-held weapons, trail effects, floating damage, camera shake, death ragdoll, cape physics
 - **v0.2** -- Original cube-only Minecraft-style block models
 - **v0.1** -- Basic colored cubes, no skeleton

@@ -1,0 +1,1 @@
+Now think hard and write elegant code that completes this. Write good commenting, follow CTO level standards. Do not add backwards compatibility unless explicitly requested. After every code block you write, compile, update the checklist to stay on track and utilize corresponding tests and run them before writing the next code block.

@@ -260,8 +260,30 @@ Quick checklist:
 
 ---
 
+## 20× Scale: Army Composition
+
+With the unit budget scaling upgrade (`UnitBudgetScaleFactor = 250`, `MaxUnitsPerSide = 800`), each faction's battle army size is proportional to its historical military strength. The 4 Viking unit types are distributed across the North Sea Empire's 192-unit battle army as follows:
+
+| Unit Type | Typical % | Count (192 total) | Formation Role |
+|-----------|-----------|-------------------|----------------|
+| Shieldbearer | 25% | ~48 | Front line, absorbs charges |
+| Huscarl Swordsman | 30% | ~58 | Main battle line, versatile |
+| Berserker | 20% | ~38 | Flanks and shock attacks |
+| Norse Hunter | 25% | ~48 | Rear line, ranged support |
+
+During the interactive **Battle Setup** phase, the player can:
+- Drag-select groups of units and reposition them with right-click
+- Use formation presets (F1=Line, F2=Column, F3=Wedge, F4=Square, F5=Spread)
+- Rotate formations with R key
+- Quick-select all units of a type with double-click or number keys
+
+The opponent's army is auto-placed by AI on the other side of the battlefield.
+
+---
+
 ## Version History
 
+- **v0.4** -- 20× unit scale: armies of 48-800 units. Interactive placement system with drag-select, formation presets, rotation. LOD system for performance at scale.
 - **v0.3** -- Premium graphics overhaul: PBR materials, forward-held weapons, skeletal animation, cloth physics, weapon trails, enhanced VFX
 - **v0.2** -- Viking overhaul: 4 distinct characters with unique abilities, visual identities, and AI behaviors
 - **v0.1** -- Initial MVP: 2 generic unit types (Swordsman, Archer) with basic block models

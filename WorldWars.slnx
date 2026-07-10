@@ -1,4 +1,6 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="WorldWars.Editor.csproj" />
+  <Project Path="WorldWars.csproj" />
+  <Project Path="EditModeTests.csproj" />
+  <Project Path="PlayModeTests.csproj" />
 </Solution>

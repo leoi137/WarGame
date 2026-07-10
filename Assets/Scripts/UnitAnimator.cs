@@ -73,6 +73,10 @@ public class UnitAnimator : MonoBehaviour
     // Weapon drop on death
     bool weaponDropped;
 
+    // Data-driven animation profile (set via SetAnimationProfile for typeDefinition units)
+    UnitCategory? animCategory;
+    WeaponStyle animWeapon = WeaponStyle.None;
+
     void Start()
     {
         unit = GetComponent<Unit>();
@@ -342,17 +346,50 @@ public class UnitAnimator : MonoBehaviour
 
     // ========== ATTACK ANIMATION ==========
 
+    public void SetAnimationProfile(UnitCategory category, WeaponStyle weapon)
+    {
+        animCategory = category;
+        animWeapon = weapon;
+    }
+
     public void PlayAttackAnimation()
     {
         currentState = AnimState.Attacking;
         attackAnimTimer = 0f;
 
-        switch (unit.unitType)
+        if (animCategory.HasValue && animWeapon != WeaponStyle.None)
         {
-            case UnitType.Swordsman: attackAnimDuration = 0.55f; break;
-            case UnitType.Archer: attackAnimDuration = 0.65f; break;
-            case UnitType.Berserker: attackAnimDuration = 0.45f; break;
-            case UnitType.Shieldbearer: attackAnimDuration = 0.6f; break;
+            attackAnimDuration = GetDurationFromWeaponStyle(animWeapon);
+        }
+        else
+        {
+            switch (unit.unitType)
+            {
+                case UnitType.Swordsman: attackAnimDuration = 0.55f; break;
+                case UnitType.Archer: attackAnimDuration = 0.65f; break;
+                case UnitType.Berserker: attackAnimDuration = 0.45f; break;
+                case UnitType.Shieldbearer: attackAnimDuration = 0.6f; break;
+            }
+        }
+    }
+
+    static float GetDurationFromWeaponStyle(WeaponStyle weapon)
+    {
+        switch (weapon)
+        {
+            case WeaponStyle.Sword:
+            case WeaponStyle.DualSword: return 0.55f;
+            case WeaponStyle.Bow:
+            case WeaponStyle.Crossbow: return 0.65f;
+            case WeaponStyle.Axe:
+            case WeaponStyle.DualAxe: return 0.45f;
+            case WeaponStyle.Spear: return 0.6f;
+            case WeaponStyle.Club:
+            case WeaponStyle.Mace: return 0.5f;
+            case WeaponStyle.Javelin:
+            case WeaponStyle.Sling:
+            case WeaponStyle.Atlatl: return 0.55f;
+            default: return 0.5f;
         }
     }
 
@@ -362,12 +399,48 @@ public class UnitAnimator : MonoBehaviour
         attackAnimTimer += dt;
         float t = Mathf.Clamp01(attackAnimTimer / attackAnimDuration);
 
-        switch (unit.unitType)
+        if (animCategory.HasValue && animWeapon != WeaponStyle.None)
         {
-            case UnitType.Swordsman: AnimateSwordAttack(t); break;
-            case UnitType.Archer: AnimateBowAttack(t); break;
-            case UnitType.Berserker: AnimateAxeAttack(t); break;
-            case UnitType.Shieldbearer: AnimateSpearAttack(t); break;
+            switch (animWeapon)
+            {
+                case WeaponStyle.Sword:
+                case WeaponStyle.DualSword:
+                    AnimateSwordSwing(t);
+                    break;
+                case WeaponStyle.Axe:
+                case WeaponStyle.DualAxe:
+                    AnimateAxeSwing(t);
+                    break;
+                case WeaponStyle.Spear:
+                    AnimateSpearThrust(t);
+                    break;
+                case WeaponStyle.Bow:
+                case WeaponStyle.Crossbow:
+                    AnimateBowShot(t);
+                    break;
+                case WeaponStyle.Club:
+                case WeaponStyle.Mace:
+                    AnimateClubSwing(t);
+                    break;
+                case WeaponStyle.Javelin:
+                case WeaponStyle.Sling:
+                case WeaponStyle.Atlatl:
+                    AnimateJavelinThrow(t);
+                    break;
+                default:
+                    AnimateSwordSwing(t);
+                    break;
+            }
+        }
+        else
+        {
+            switch (unit.unitType)
+            {
+                case UnitType.Swordsman: AnimateSwordAttack(t); break;
+                case UnitType.Archer: AnimateBowAttack(t); break;
+                case UnitType.Berserker: AnimateAxeAttack(t); break;
+                case UnitType.Shieldbearer: AnimateSpearAttack(t); break;
+            }
         }
 
         if (t >= 1f)
@@ -376,6 +449,13 @@ public class UnitAnimator : MonoBehaviour
             ResetAllPivots();
         }
     }
+
+    void AnimateSwordSwing(float t) => AnimateSwordAttack(t);
+    void AnimateAxeSwing(float t) => AnimateAxeAttack(t);
+    void AnimateSpearThrust(float t) => AnimateSpearAttack(t);
+    void AnimateBowShot(float t) => AnimateBowAttack(t);
+    void AnimateClubSwing(float t) => AnimateAxeAttack(t);
+    void AnimateJavelinThrow(float t) => AnimateSpearAttack(t);
 
     // --- SWORDSMAN OVERHEAD SLASH ---
     void AnimateSwordAttack(float t)
